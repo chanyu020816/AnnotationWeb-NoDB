@@ -1,0 +1,6 @@
+.DS_Store
+*.jpg
+*.pyc
+Annotations
+*.zip
+web
