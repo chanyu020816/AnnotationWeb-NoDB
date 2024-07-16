@@ -7,7 +7,7 @@
     <script src="../static/script.js"></script>
   </head>
   <body>
-    <div class="form-container" id="form_container" style="display: block">
+    <div class="form-container" id="form_container" style="display: none">
       <form onsubmit="submitForm(event)">
         <div class="form">
           <h3>Login</h3>
@@ -82,6 +82,29 @@
       <button id="download-button">下載標註結果</button>
       <div id="download-status"></div>
     </div>
+    <div class="control-group" id="label-lon" style="width: 720px">
+      <label for="label-size">經度：</label>
+      <input
+        type="number"
+        id="label-lon-input"
+        name="label-lon"
+        min="121"
+        max="123"
+        value="121"
+      />
+    </div>
+    <div class="control-group" id="label-lat" style="width: 720px">
+      <label for="label-size">緯度：</label>
+      <input
+        type="number"
+        id="label-lat-input"
+        name="label-lat"
+        min="21"
+        max="25"
+        value="23"
+      />
+    </div>
+    <button class="button" id="crawler-button">下載圖片</button>
     <nav aria-label="Page navigation">
       <!-- 第一个按钮，点击后显示上面的内容 -->
       <!-- <button id="firstSetBtn" style="border: 3px solid red">第一套圖徵</button> -->

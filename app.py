@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, send_file
 from flask_cors import CORS
+from WMTS_crawler import download_WMTS_images, lonlat_to_tile, get_surrounding_tile_range
 import re
 import zipfile
 from PIL import Image as pilImage
@@ -27,6 +28,11 @@ classes = [class1, class2]
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/crawler_1904')
+def crawler1904():
+    return render_template('crawler_1904.html')
+
 
 @app.route('/save_image_for_download', methods=['POST'])
 def save_image_for_download():
@@ -317,6 +323,45 @@ def download_image():
     image_name = image_name.replace("\"", "")
     image_file_path = os.path.join("Annotations", f"Server_images", f'{image_name}.jpg')
     return send_file(image_file_path, as_attachment=True)
+
+@app.route('/download_wmts_image', methods=['POST'])
+def download_wmts_image():
+    save_folder = "./Annotations/Server_images"
+
+    data = request.json
+    lon = data.get('lon')
+    lat = data.get('lat')
+
+    x_tile, y_tile = lonlat_to_tile(float(lon), float(lat), 16)
+    x_tile_start, x_tile_end, y_tile_start, y_tile_end = get_surrounding_tile_range(x_tile, y_tile)
+
+    download_WMTS_images(
+        save_folder=save_folder,
+        x_tile_start=x_tile_start,
+        x_tile_end=x_tile_end + 1,
+        y_tile_start=y_tile_start,
+        y_tile_end=y_tile_end + 1,
+        zoom_level=16,
+        year=1904
+    )
+
+    file_list = []
+    for x in range(x_tile_start, x_tile_end + 1):
+        for y in range(y_tile_start, y_tile_end + 1):
+            file_name = f"1904-16-{x}-{y}.jpg"
+            file_path = f"{save_folder}/{file_name}"
+            if os.path.exists(file_path):
+                with open(file_path, "rb") as file:
+                    file_content = base64.b64encode(file.read()).decode('utf-8')
+                    file_list.append({
+                        'name': file_name,
+                        'content': file_content,
+                        'type': 'image/jpg'
+                    })
+            else:
+                print(f"Failed: {file_path}")
+
+    return jsonify({'message': 'Success', 'files': file_list})
 
 @app.route('/upload_yolo_labels', methods=['POST'])
 def upload_yolo_labels():
