@@ -261,7 +261,9 @@ async function downloadWTMSImage_by_lonlat() {
   const promises = files
     .filter((f) => f.type.match("image.*"))
     .map((f) => readFileAsDataURL(f));
-
+  const imageContainer = document.getElementById("image-container");
+  imageContainer.addEventListener("mouseover", imageMouseOverHandler);
+  imageContainer.addEventListener("mouseout", imageMouseOutHandler);
   Promise.all(promises).then((results) => console.log(results));
 }
 
@@ -289,10 +291,12 @@ async function downloadWTMSImage_by_tile() {
   } else {
     document.getElementById("download-status").textContent = "";
   }
-
   const promises = files
     .filter((f) => f.type.match("image.*"))
     .map((f) => readFileAsDataURL(f));
+  const imageContainer = document.getElementById("image-container");
+  imageContainer.addEventListener("mouseover", imageMouseOverHandler);
+  imageContainer.addEventListener("mouseout", imageMouseOutHandler);
 
   Promise.all(promises).then((results) => console.log(results));
 }
@@ -1168,6 +1172,7 @@ function download_labeled_WMTSimages() {
 }
 
 function imageMouseOverHandler(event) {
+  console.log("Test");
   const labelSizeInput = document.getElementById("label-size");
   const divSize = parseInt(labelSizeInput.value);
 
