@@ -5,3 +5,9 @@ Annotations
 *.zip
 web
 venv
+__pycache__
+.vscode
+.idea
+node_modules
+package*
+yarn.lock

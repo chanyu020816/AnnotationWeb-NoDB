@@ -1,11 +1,11 @@
 # import cv2
-import requests
 import math
-import numpy as np
 import os
 import time
-
 from io import BytesIO
+
+import numpy as np
+import requests
 from PIL import Image
 from tqdm import tqdm
 
@@ -45,16 +45,21 @@ def is_black_WMTS_image(image) -> bool:
 
 def lonlat_to_tile(lon, lat, zoom_level):
     lat_radian = math.radians(lat)
-    n = 2.0 ** zoom_level
+    n = 2.0**zoom_level
     x_tile = int((lon + 180.0) / 360.0 * n)
-    y_tile = int((1.0 - math.log(math.tan(lat_radian) + (1 / math.cos(lat_radian))) / math.pi) / 2.0 * n)
-
+    y_tile = int(
+        (1.0 - math.log(math.tan(lat_radian) + (1 / math.cos(lat_radian))) / math.pi)
+        / 2.0
+        * n
+    )
     return x_tile, y_tile
 
 
 def get_WMTS_url(xtile: int, ytile: int, zoom_level: int = 16, year: int = 1904):
     year_type = YEAR_TYPE[year == 1920]
-    return URL_PREFIX + year_type + f"-jpg-{zoom_level}-{xtile}-{ytile}"
+    img_type = "jpg" if year == 1904 else "png"
+
+    return URL_PREFIX + year_type + f"-{img_type}-{zoom_level}-{xtile}-{ytile}"
 
 
 def download_all_WMTS_images(save_folder, zoom_level: int = 16, year: int = 1904):
@@ -68,13 +73,31 @@ def download_all_WMTS_images(save_folder, zoom_level: int = 16, year: int = 1904
 
     x_tile_start, y_tile_end = lonlat_to_tile(lon_start, lat_start, zoom_level)
     x_tile_end, y_tile_start = lonlat_to_tile(lon_end, lat_end, zoom_level)
-    download_WMTS_images(save_folder, x_tile_start, x_tile_end, y_tile_start, y_tile_end, zoom_level, year)
+    download_WMTS_images(
+        save_folder,
+        x_tile_start,
+        x_tile_end,
+        y_tile_start,
+        y_tile_end,
+        zoom_level,
+        year,
+    )
 
 
-def download_WMTS_images(save_folder, x_tile_start, x_tile_end, y_tile_start, y_tile_end, zoom_level: int = 16, year: int = 1904):
+def download_WMTS_images(
+    save_folder,
+    x_tile_start,
+    x_tile_end,
+    y_tile_start,
+    y_tile_end,
+    zoom_level: int = 16,
+    year: int = 1904,
+):
+    print("Start downloading images... ")
     i = 0
     j = 0
-    for xtile in tqdm(range(x_tile_start, x_tile_end)):
+
+    for xtile in range(x_tile_start, x_tile_end):
         for ytile in range(y_tile_start, y_tile_end):
             wmts_url = get_WMTS_url(xtile, ytile, zoom_level, year)
             image = download_WMTS_image(wmts_url)
@@ -88,7 +111,9 @@ def download_WMTS_images(save_folder, x_tile_start, x_tile_end, y_tile_start, y_
                 j += 1
                 continue
 
-            image.save(os.path.join(save_folder, f"{year}-{zoom_level}-{xtile}-{ytile}.jpg"))
+            image.save(
+                os.path.join(save_folder, f"{year}-{zoom_level}-{xtile}-{ytile}.jpg")
+            )
             i += 1
             if i % 20 == 0:
                 time.sleep(1)
@@ -102,12 +127,15 @@ def get_surrounding_tile_range(x_tile, y_tile):
     y_tile_end = y_tile + 1
     return x_tile_start, x_tile_end, y_tile_start, y_tile_end
 
+
 if __name__ == "__main__":
-    x_tile, y_tile = lonlat_to_tile(121, 23.5, 16)
-    x_tile_start, x_tile_end, y_tile_start, y_tile_end = get_surrounding_tile_range(x_tile, y_tile)
+    x_tile, y_tile = lonlat_to_tile(121.5, 23.5, 16)
+    x_tile_start, x_tile_end, y_tile_start, y_tile_end = get_surrounding_tile_range(
+        x_tile, y_tile
+    )
 
     print(x_tile_start, x_tile_end, y_tile_start, y_tile_end)
-    save_folder = "./WMTS_images"
+    save_folder = "./Test"
     # if not os.path.isdir(save_folder):
     #     os.mkdir(save_folder)
     # download_all_WMTS_images(save_folder=save_folder, zoom_level=10, year=1904)
@@ -118,5 +146,5 @@ if __name__ == "__main__":
         y_tile_start=y_tile_start,
         y_tile_end=y_tile_end + 1,
         zoom_level=16,
-        year=1904
+        year=1904,
     )

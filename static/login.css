@@ -1,0 +1,122 @@
+form {
+  height: 450px;
+  width: 400px;
+  background-color: rgba(255, 255, 255, 0.13);
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
+  padding: 0px 35px;
+}
+
+form h3 {
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 20px;
+  text-align: center;
+}
+
+#username_label {
+  display: block;
+  margin-top: -20px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+#password_label {
+  display: block;
+  margin-top: 0px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+#set_label {
+  display: block;
+  margin-top: 0px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+#mode_label {
+  display: block;
+  margin-top: 0px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+input {
+  display: block;
+  height: 50px;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.07);
+  border-radius: 3px;
+  padding: 0 5px;
+  margin-top: 5px;
+  font-size: 14px;
+  font-weight: 300;
+}
+
+::placeholder {
+  color: #e5e5e5;
+}
+
+#login-set {
+  top: 280px;
+  width: 40%;
+  position: absolute;
+  background-color: #ff902f;
+  color: #ffffff;
+  padding: 15px 0;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+}
+
+#login-mode {
+  top: 280px;
+  left: 203px;
+  width: 40%;
+  position: absolute;
+  background-color: #ff902f;
+  color: #ffffff;
+  padding: 15px 0;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+}
+
+#login-set:hover {
+  background-color: #efc483;
+  color: #ffffff;
+}
+
+#login-mode:hover {
+  background-color: #efc483;
+  color: #ffffff;
+}
+
+#submit_button {
+  top: 360px;
+  width: 83%;
+  position: absolute;
+  background-color: #392fff;
+  color: #ffffff;
+  padding: 15px 0;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#submit_button:hover {
+  background-color: #008cba;
+  color: #ffffff;
+}

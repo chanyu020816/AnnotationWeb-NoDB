@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Annotation Tool 1904</title>
+    <link rel="stylesheet" href="../static/style.css" />
+    <link rel="stylesheet" href="../static/pagination.css" />
+    <script src="../static/script.js"></script>
+  </head>
+
+  <body>
+    <div class="content">
+      <div class="image-container" id="image-container">
+        <img id="image-display" src="" alt="圖片預覽" />
+      </div>
+      <input
+        type="file"
+        id="file-input"
+        multiple
+        accept="image/*"
+        style="display: none"
+      />
+      <input
+        type="file"
+        id="label-input"
+        accept=".txt"
+        multiple
+        style="display: none"
+      />
+      <button id="logout-button">登出</button>
+      <button id="upload-button">上傳圖片</button>
+      <button id="upload-label-button">上傳標註</button>
+      <button id="reset-button">重新標註</button>
+      <button id="complete-button">完成標註</button>
+      <button id="prev-button">前一張圖</button>
+      <button id="next-button">下一張圖</button>
+      <div class="control-group" id="label-size-container">
+        <label for="label-size">標籤大小:</label>
+        <input
+          type="number"
+          id="label-size"
+          name="label-size"
+          min="1"
+          max="480"
+          value="20"
+        />
+      </div>
+      <div id="label-counter">標註框數量 0</div>
+      <div id="image-counter">圖片數量 0 / 0</div>
+      <div id="complete-counter">完成標註數量 0 / 0</div>
+      <select id="format-select">
+        <option value="yolo">YOLO Format</option>
+        <option value="pascal">Pascal Format</option>
+      </select>
+      <button id="download-button">下載標註結果</button>
+      <div id="download-status"></div>
+    </div>
+    <div id="nav-placeholder"></div>
+    <div class="menu">
+      <ul id="image-menu"></ul>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const year = localStorage.getItem("year");
+        const url = `/nav_${year}`;
+
+        fetch(url)
+          .then((response) => response.text())
+          .then((data) => {
+            document.getElementById("nav-placeholder").innerHTML = data;
+          })
+          .catch((error) => console.error("Error loading navigation:", error));
+      });
+    </script>
+  </body>
+</html>

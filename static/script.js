@@ -9,200 +9,163 @@ let change = false;
 let detections = [];
 let paddings = [];
 let ptype = 1;
-let classSet = 1;
+let type = "label";
+let classSet = 1; // 1: 1904, 2: 1921
 let annotations = [];
 let parentImagesName = [];
-let format_type = 'yolo';
-let mode = 'annotate';
+let format_type = "yolo";
+let mode = "annotate";
 let anno_ids = [];
 const split_size = 480;
+const container_size = 720;
 const classColors = {
-  0: 'red',
-  1: 'blue',
-  2: 'green',
-  3: 'purple',
-  4: 'orange',
-  5: 'pink',
-  6: 'yellow',
-  7: 'cyan',
-  8: 'magenta',
-  9: 'teal',
-  10: 'brown',
-  11: 'olive',
-  12: 'navy',
+  0: "red",
+  1: "blue",
+  2: "green",
+  3: "purple",
+  4: "orange",
+  5: "pink",
+  6: "yellow",
+  7: "cyan",
+  8: "magenta",
+  9: "teal",
+  10: "brown",
+  11: "olive",
+  12: "navy",
+  13: "lime",
+  14: "coral",
+  15: "aqua",
+  16: "maroon",
+  17: "lavender",
+  18: "grey",
+  19: "gold",
+  20: "silver",
+  21: "indigo",
 };
-
-//displaySet(classSet);
-//displayMode(mode);
-
-/* function submitForm(event) {
-  event.preventDefault();
-
-  const loginSet = document.getElementById('login-set').value;
-  displaySet(classSet);
-  displayMode(mode);
-
-  // 根據選擇的值跳轉路由
-  const url = `/${loginSet}`;
-  window.location.href = url;
-} */
-
-function submitForm(event) {
-  event.preventDefault();
-
-  const username = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
-
-  const formContainer = document.getElementById('form_container');
-  const content = document.querySelector('.content');
-  const nav = document.querySelector('nav');
-
-  if (formContainer) formContainer.style.display = 'none';
-  if (content) content.style.display = 'block';
-  if (nav) nav.style.display = 'block';
-
-  localStorage.setItem('username', username);
-  localStorage.setItem('isLogin', true);
-  localStorage.setItem('login_set', classSet);
-  localStorage.setItem('login_mode', mode);
-
-  const loginSet = document.getElementById('login-set').value;
-  const url = `/${loginSet}`;
-  window.location.href = url;
-}
-
-function displaySet(set) {
-  set = parseInt(set);
-
-  const formContainer = document.getElementById('form_container');
-  const content = document.querySelector('.content');
-  const nav = document.querySelector('nav');
-
-  if (formContainer) formContainer.style.display = 'none';
-  if (content) content.style.display = 'block';
-  if (nav) nav.style.display = 'block';
-
-  if (classSet === 1) {
-    classSet = 1;
-    pagination1_1.style.display = 'block';
-    pagination1_2.style.display = 'block';
-    pagination2_1.style.display = 'none';
-    pagination2_2.style.display = 'none';
-    pagination2_3.style.display = 'none';
-
-    const liItems = document.querySelectorAll('li');
-    liItems.forEach((li) => {
-      li.classList.remove('ptype', 'active');
-    });
-    const class1ptype = document.getElementById('class1ptype');
-    class1ptype.classList.add('ptype', 'active');
-    ptype = 1;
-  } else {
-    classSet = 2;
-    pagination1_1.style.display = 'none';
-    pagination1_2.style.display = 'none';
-    pagination2_1.style.display = 'block';
-    pagination2_2.style.display = 'block';
-    pagination2_3.style.display = 'block';
-
-    const liItems = document.querySelectorAll('li');
-    liItems.forEach((li) => {
-      li.classList.remove('ptype', 'active');
-    });
-    const class2ptype = document.getElementById('class2ptype');
-    class2ptype.classList.add('ptype', 'active');
-    ptype = 1;
-  }
-}
-
-function displayMode(mode) {
-  if (mode === 'annotate') {
-    document.getElementById('upload-label-button').style.display = 'none';
-  } else if (mode === 'modify') {
-    document.getElementById('upload-label-button').style.display = 'block';
-  } else {
-    console.error();
-  }
-}
 
 window.onload = function () {
-  const username = localStorage.getItem('username');
-  const isLogin = localStorage.getItem('isLogin');
-  const login_set = localStorage.getItem('login_set');
-  const login_mode = localStorage.getItem('login_mode');
+  const username = localStorage.getItem("username");
+  const isLogin = localStorage.getItem("isLogin");
+  const login_setting = localStorage.getItem("login_setting");
 
   if (isLogin) {
-    const formContainer = document.getElementById('form_container');
-    const content = document.querySelector('.content');
-    const nav = document.querySelector('nav');
+    const formContainer = document.getElementById("form_container");
+    const content = document.querySelector(".content");
+    const nav = document.querySelector("nav");
 
-    if (formContainer) formContainer.style.display = 'none';
-    if (content) content.style.display = 'block';
-    if (nav) nav.style.display = 'block';
+    if (formContainer) formContainer.style.display = "none";
+    if (content) content.style.display = "block";
+    if (nav) nav.style.display = "block";
 
-    classSet = login_set;
-    mode = login_mode;
-    displaySet(login_set);
-    displayMode(login_mode);
+    [type, classSet, mode] = get_login_set_mode(login_setting);
+
+    displayPagination();
+
+    const liItems = document.querySelectorAll("li");
+    liItems.forEach((li) => {
+      li.classList.add("modify");
+      li.addEventListener("click", function () {
+        ptype = parseInt(this.getAttribute("data-ptype"));
+        liItems.forEach((item) => {
+          if (item === this) {
+            item.classList.add("ptype", "active");
+            const aElement = item.querySelector("a");
+            if (aElement) {
+              // aElement.style.border = "3px solid red";
+              aElement.style.outline = "3px solid red";
+              aElement.style.outlineOffset = "-3px";
+            }
+          } else {
+            item.classList.remove("ptype", "active");
+            const aElement = item.querySelector("a");
+            if (aElement) {
+              aElement.style.outline = "none";
+            }
+          }
+        });
+      });
+    });
+
+    // 修改模式下，會多一個上傳標註檔案的按鈕
+    if (mode === "modify" && localStorage.getItem("page") !== "WMTSlabel") {
+      document.getElementById("upload-label-button").style.display = "block";
+    } else {
+      document.getElementById("upload-label-button").style.display = "none";
+    }
   }
 };
 
-document.addEventListener('DOMContentLoaded', function () {
-  const crawlerButton = document.getElementById('crawler-button');
-  if (crawlerButton) crawlerButton.addEventListener('click', downloadWTMSImage);
+function displayPagination() {
+  document.getElementById("pagination1_1").style.top = `${800}px`;
+  document.getElementById("pagination1_2").style.top = `${950}px`;
 
-  const login_set = document.getElementById('login-set');
-  login_set.addEventListener('change', function () {
-    classSet = login_set.value;
-  });
-  const login_mode = document.getElementById('login-mode');
-  login_mode.addEventListener('change', function () {
-    mode = login_mode.value;
-  });
-  document.getElementById('form_container').style.display = 'block';
+  if (document.getElementById("pagination1_3")) {
+    document.getElementById("pagination1_3").style.top = `${1100}px`;
+  }
+  if (document.getElementById("pagination1_4")) {
+    document.getElementById("pagination1_4").style.top = `${1250}px`;
+  }
+  var paginationElement = document.getElementById("pagination1_5");
+  if (paginationElement) {
+    paginationElement.style.top = `${1400}px`;
+  }
+  var paginationElement = document.getElementById("pagination1_6");
+  if (paginationElement) {
+    paginationElement.style.top = `${1550}px`;
+  }
+}
+
+function get_login_set_mode(login_setting) {
+  const text = login_setting.split("_");
+  const type = text[0];
+  const class_set = (text[1] === "1921") + 1; // -> 1: 1904, 2: 1921
+  const mode = text[2];
+
+  return [type, class_set, mode];
+}
+
+function get_url_location() {
+  const url = window.location.href.split("/");
+  return url[url.length - 1];
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const wmts_tile_Button = document.getElementById("crawler-tile-button");
+  if (wmts_tile_Button)
+    wmts_tile_Button.addEventListener("click", downloadWTMSImage_by_tile);
+
+  const wmts_lonlat_Button = document.getElementById("crawler-lonlat-button");
+  if (wmts_lonlat_Button)
+    wmts_lonlat_Button.addEventListener("click", downloadWTMSImage_by_lonlat);
+
   document
-    .getElementById('upload-button')
-    .addEventListener('click', function () {
-      document.getElementById('file-input').click();
+    .getElementById("upload-button")
+    .addEventListener("click", function () {
+      document.getElementById("file-input").click();
     });
   document
-    .getElementById('file-input')
-    .addEventListener('change', handleFileSelect);
+    .getElementById("file-input")
+    .addEventListener("change", handleFileSelect);
   document
-    .getElementById('upload-label-button')
-    .addEventListener('click', function () {
-      document.getElementById('label-input').click();
+    .getElementById("upload-label-button")
+    .addEventListener("click", function () {
+      document.getElementById("label-input").click();
     });
   document
-    .getElementById('label-input')
-    .addEventListener('change', handleLabelSelect);
+    .getElementById("label-input")
+    .addEventListener("change", handleLabelSelect);
   document
-    .getElementById('prev-button')
-    .addEventListener('click', showPrevImage);
+    .getElementById("prev-button")
+    .addEventListener("click", showPrevImage);
   document
-    .getElementById('next-button')
-    .addEventListener('click', showNextImage);
-  document.getElementById('reset-button').addEventListener('click', labelreset);
-  const ptypeBtns = document.querySelectorAll('.ptypeBtn');
-
-  const liItems = document.querySelectorAll('li');
-
-  liItems.forEach((li) => {
-    li.addEventListener('click', function () {
-      ptype = parseInt(this.getAttribute('data-ptype'));
-      liItems.forEach((item) => {
-        if (item === this) {
-          item.classList.add('ptype', 'active');
-        } else {
-          item.classList.remove('ptype', 'active');
-        }
-      });
-    });
-  });
+    .getElementById("next-button")
+    .addEventListener("click", showNextImage);
+  document.getElementById("reset-button").addEventListener("click", labelreset);
+  const ptypeBtns = document.querySelectorAll(".ptypeBtn");
 
   document
-    .getElementById('complete-button')
-    .addEventListener('click', async function () {
+    .getElementById("complete-button")
+    .addEventListener("click", async function () {
       if (!completedImageName.includes(imagesName[currentImageIndex])) {
         completedImageName.push(imagesName[currentImageIndex]);
       }
@@ -212,60 +175,25 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
   document
-    .getElementById('download-button')
-    .addEventListener('click', async function () {
-      download_labeled_images();
+    .getElementById("download-button")
+    .addEventListener("click", async function () {
+      const page = localStorage.getItem("page");
+      if (page == "WMTSlabel") {
+        console.log("Test");
+        download_labeled_WMTSimages();
+      } else {
+        download_labeled_images();
+      }
     });
 
-  const formatSelect = document.getElementById('format-select');
-  formatSelect.addEventListener('change', function () {
+  const formatSelect = document.getElementById("format-select");
+  formatSelect.addEventListener("change", function () {
     format_type = formatSelect.value;
   });
 
-  const logoutBtn = document.getElementById('logout-button');
-  logoutBtn.addEventListener('click', logout);
+  const logoutBtn = document.getElementById("logout-button");
+  logoutBtn.addEventListener("click", logout);
 });
-
-function logout() {
-  localStorage.removeItem('username');
-  localStorage.removeItem('isLogin');
-  localStorage.removeItem('login_set');
-  localStorage.removeItem('login_mode');
-
-  document.getElementById('form_container').style.display = 'block';
-  document.querySelector('.content').style.display = 'none';
-  document.querySelector('nav').style.display = 'none';
-  classSet = 1;
-  mode = 'annotate';
-  images = [];
-  imagesName = [];
-  currentImageIndex = 0;
-  menuItemsCompleted = [];
-  completedImageName = [];
-  parentImagesName = [];
-  labels = [];
-  annotations = [];
-  prev_index = -1;
-  detections = [];
-  paddings = [];
-  document.getElementById('image-counter').textContent = '圖片數量 0 / 0';
-  document.getElementById('complete-counter').textContent =
-    '完成標註數量 0 / 0';
-  updateImageMenu(imagesName);
-  const container = document.getElementById('image-container');
-  const imageDisplay = document.getElementById('image_display');
-  if (imageDisplay) {
-    container.removeChild(imageDisplay);
-  }
-  const divs = container.getElementsByClassName('overlay-div');
-  while (divs.length > 0) {
-    divs[0].parentNode.removeChild(divs[0]);
-  }
-  document.getElementById('login-set').selectedIndex = 0;
-  document.getElementById('login-mode').selectedIndex = 0;
-
-  window.location.href = './';
-}
 
 /* 0716 */ /* 
 async function fetchFile(url) {
@@ -274,17 +202,17 @@ async function fetchFile(url) {
   const fileName = url.split('/').pop();
   return new File([blob], fileName, { type: blob.type });
 } */
-async function fetchFilesFromServer(lon, lat) {
-  const response = await fetch('/download_wmts_image', {
-    method: 'POST',
+async function fetchFilesFromServer(x_tile, y_tile, zoom, year) {
+  const response = await fetch("/download_wmts_image", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ lon, lat }),
+    body: JSON.stringify({ x_tile, y_tile, zoom, year }),
   });
 
   const data = await response.json();
-  if (data.message === 'Success') {
+  if (data.message === "Success") {
     const files = data.files.map((file) => {
       const byteCharacters = atob(file.content);
       const byteNumbers = new Array(byteCharacters.length);
@@ -297,49 +225,125 @@ async function fetchFilesFromServer(lon, lat) {
     });
     return files;
   } else {
-    throw new Error('Failed to download images');
+    document.getElementById("download-status").textContent =
+      "網站目前無法抓取圖片資料";
+    throw new Error("Failed to download images");
   }
 }
 
-async function downloadWTMSImage() {
-  const lon = document.getElementById('label-lon-input').value;
-  const lat = document.getElementById('label-lat-input').value;
-  const files = await fetchFilesFromServer(lon, lat);
+async function downloadWTMSImage_by_lonlat() {
+  document.getElementById("download-status").textContent = "正在下載該區域圖片";
+  var lon = document.getElementById("label-lon-input").value;
+  var lat = document.getElementById("label-lat-input").value;
+  var zoom = document.getElementById("label-zoom-input").value;
+  lon = parseFloat(lon);
+  lat = parseFloat(lat);
+  zoom = parseInt(zoom);
+  var year = 1904;
+  if (classSet === 2) {
+    year = 1920;
+  }
+  const tile = lonlatToTile(lon, lat, zoom);
+  const x_tile = tile["x"];
+  const y_tile = tile["y"];
+  document.getElementById("label-xtile-input").value = x_tile;
+  document.getElementById("label-ytile-input").value = y_tile;
 
+  const files = await fetchFilesFromServer(x_tile, y_tile, zoom, year);
   console.log(files);
+  if (files.length === 0) {
+    document.getElementById("download-status").textContent =
+      "該位置周圍沒有圖片";
+  } else {
+    document.getElementById("download-status").textContent = "";
+  }
 
   const promises = files
-    .filter((f) => f.type.match('image.*'))
+    .filter((f) => f.type.match("image.*"))
     .map((f) => readFileAsDataURL(f));
 
-  // 在這裡你可以處理你的 promises，例如：
   Promise.all(promises).then((results) => console.log(results));
 }
 
+async function downloadWTMSImage_by_tile() {
+  document.getElementById("download-status").textContent = "正在下載該區域圖片";
+  var x_tile = document.getElementById("label-xtile-input").value;
+  var y_tile = document.getElementById("label-ytile-input").value;
+  var zoom = document.getElementById("label-zoom-input").value;
+  x_tile = parseFloat(x_tile);
+  y_tile = parseFloat(y_tile);
+  zoom = parseInt(zoom);
+  var year = 1904;
+  if (classSet === 2) {
+    year = 1920;
+  }
+  const lonlat = tileToLonLat(x_tile, y_tile, zoom);
+  document.getElementById("label-lon-input").value = lonlat["lon"].toFixed(2);
+  document.getElementById("label-lat-input").value = lonlat["lat"].toFixed(2);
+
+  const files = await fetchFilesFromServer(x_tile, y_tile, zoom, year);
+
+  if (files.length === 0) {
+    document.getElementById("download-status").textContent =
+      "該位置周圍沒有圖片";
+  } else {
+    document.getElementById("download-status").textContent = "";
+  }
+
+  const promises = files
+    .filter((f) => f.type.match("image.*"))
+    .map((f) => readFileAsDataURL(f));
+
+  Promise.all(promises).then((results) => console.log(results));
+}
+
+function lonlatToTile(lon, lat, zoomLevel) {
+  console.log(lon, lat, zoomLevel);
+  var latRadian = lat * (Math.PI / 180);
+  var n = Math.pow(2, zoomLevel);
+  var xTile = Math.floor(((lon + 180) / 360) * n);
+  var yTile = Math.floor(
+    ((1 - Math.log(Math.tan(latRadian) + 1 / Math.cos(latRadian)) / Math.PI) /
+      2) *
+      n,
+  );
+  return { x: xTile, y: yTile };
+}
+
+function tileToLonLat(x_tile, y_tile, zoomLevel) {
+  x_tile += 0.5;
+  y_tile += 0.5;
+  const n = Math.pow(2.0, zoomLevel);
+  const lon_degree = (x_tile / n) * 360.0 - 180.0;
+  const lat_radian = Math.atan(Math.sinh(Math.PI * (1 - (2 * y_tile) / n)));
+  const lat_degree = lat_radian * (180.0 / Math.PI);
+
+  return { lat: lat_degree, lon: lon_degree };
+}
 /* 0716 */
 
 function handleFileSelect(event) {
-  const downloadStatus = document.getElementById('download-status');
-  downloadStatus.textContent = '圖片上傳中';
+  const downloadStatus = document.getElementById("download-status");
+  downloadStatus.textContent = "圖片上傳中";
   let files = Array.from(event.target.files);
   if (!files || files.length === 0) return;
 
   if (images.length >= 100) {
-    alert('已達到圖片上限 無法繼續上傳，請先完成目前圖片標註！');
+    alert("已達到圖片上限 無法繼續上傳，請先完成目前圖片標註！");
     return;
   }
 
   const promises = files
-    .filter((f) => f.type.match('image.*'))
+    .filter((f) => f.type.match("image.*"))
     .map((f) => readFileAsDataURL(f));
-  const imageContainer = document.getElementById('image-container');
-  imageContainer.addEventListener('mouseover', imageMouseOverHandler);
-  imageContainer.addEventListener('mouseout', imageMouseOutHandler);
+  const imageContainer = document.getElementById("image-container");
+  imageContainer.addEventListener("mouseover", imageMouseOverHandler);
+  imageContainer.addEventListener("mouseout", imageMouseOutHandler);
   setTimeout(() => {
-    downloadStatus.textContent = '已完成圖片上傳';
+    downloadStatus.textContent = "已完成圖片上傳";
   }, 10000);
   setTimeout(() => {
-    downloadStatus.textContent = '';
+    downloadStatus.textContent = "";
   }, 5000);
 }
 
@@ -352,14 +356,14 @@ function readFileAsDataURL(file) {
         // avoid repeat uploading
         if (
           parentImagesName.indexOf(
-            file.name.split('.').slice(0, -1).join('.')
+            file.name.split(".").slice(0, -1).join("."),
           ) === -1
         ) {
           const [newImages, newImageNames] = splitImage(
             img,
             file,
             split_size,
-            mode
+            mode,
           );
           images.push(...newImages);
           imagesName.push(...newImageNames);
@@ -377,20 +381,20 @@ function readFileAsDataURL(file) {
 async function handleLabelSelect(event) {
   let files = Array.from(event.target.files);
   if (!files || files.length === 0) {
-    console.error('未选择文件');
+    console.error("未选择文件");
     return;
   }
   const promises = files
-    .filter((f) => f.type.match('text/plain'))
+    .filter((f) => f.type.match("text/plain"))
     .map((f) => readLabel(f));
 }
 
 async function readLabel(file) {
   const formData = new FormData();
-  formData.append('file', file);
+  formData.append("file", file);
   try {
-    const response = await fetch('/upload_yolo_labels', {
-      method: 'POST',
+    const response = await fetch("/upload_yolo_labels", {
+      method: "POST",
       body: formData,
     });
     if (response.ok) {
@@ -404,23 +408,23 @@ async function readLabel(file) {
           labels[index] = labels_data[0].labels;
           // showImage(currentImageIndex, modify=true);
         } else {
-          console.log(labels_data[0].filename, '.jpg not uploaded');
+          console.log(labels_data[0].filename, ".jpg not uploaded");
         }
       } else {
-        console.log(labels_data[0].filename, '.txt has no label');
+        console.log(labels_data[0].filename, ".txt has no label");
       }
     } else {
-      console.error('上传失败:', response.statusText);
+      console.error("上传失败:", response.statusText);
     }
   } catch (error) {
-    console.error('上传时出错:', error);
+    console.error("上传时出错:", error);
   }
   showImage(currentImageIndex, (modify = true));
 }
 
 function splitImage(image, file, size, mode) {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
   const numH = Math.ceil(image.height / size);
   const numW = Math.ceil(image.width / size);
   const newH = numH * size;
@@ -437,7 +441,7 @@ function splitImage(image, file, size, mode) {
   const childImages = [];
   canvas.height = newH;
   canvas.width = newW;
-  ctx.fillStyle = '#000000';
+  ctx.fillStyle = "#000000";
   ctx.fillRect(0, 0, newW, newH);
   ctx.drawImage(
     image,
@@ -448,18 +452,18 @@ function splitImage(image, file, size, mode) {
     padW,
     padH,
     image.width,
-    image.height
+    image.height,
   );
   const images = [];
   const imageNames = [];
 
-  const fileName = file.name.split('.').slice(0, -1).join('.');
+  const fileName = file.name.split(".").slice(0, -1).join(".");
   parentImagesName.push(fileName);
 
   for (let h = 0; h < numH; h++) {
     for (let w = 0; w < numW; w++) {
-      const cut_canvas = document.createElement('canvas');
-      const cut_ctx = cut_canvas.getContext('2d');
+      const cut_canvas = document.createElement("canvas");
+      const cut_ctx = cut_canvas.getContext("2d");
       cut_canvas.width = size;
       cut_canvas.height = size;
       cut_ctx.drawImage(
@@ -471,7 +475,7 @@ function splitImage(image, file, size, mode) {
         0,
         0,
         size,
-        size
+        size,
       );
       const imageDataURL = cut_canvas.toDataURL();
       images.push(imageDataURL);
@@ -491,12 +495,15 @@ function splitImage(image, file, size, mode) {
       // childImages.push(child_img)
     }
   }
-  if (mode === 'modify') {
+  if (mode === "modify") {
     if ((image.height === 480) & (image.width === 480)) {
       return [[canvas.toDataURL()], [fileName]];
     } else {
-      console.error('image size wrong');
+      console.error("image size wrong");
     }
+  } else if (localStorage.getItem("page") === "WMTSlabel") {
+    console.log("WMTS");
+    return [[canvas.toDataURL()], [fileName]];
   }
   return [images, imageNames];
 }
@@ -622,6 +629,7 @@ function createPadding(h, w, numH, numW, size, padH, padW) {
   return [padxmin, padymin, padxmax, padymax];
 }
 
+// check whether x, y is in the image not padding
 function notInPadding(paddings_list, x, y, bbox_size, ratio) {
   const xleft = x * ratio;
   const ytop = y * ratio;
@@ -638,46 +646,40 @@ function notInPadding(paddings_list, x, y, bbox_size, ratio) {
 }
 
 function showImage(index, change = true, modify = false) {
-  const container = document.getElementById('image-container');
-  const imageDisplay = document.getElementById('image_display');
+  const container = document.getElementById("image-container");
+  const imageDisplay = document.getElementById("image_display");
   if (imageDisplay) {
     container.removeChild(imageDisplay);
   }
 
-  const img = document.createElement('img');
-  img.id = 'image_display';
-  // const img = document.getElementById('image-display');
+  const img = document.createElement("img");
+  img.id = "image_display";
   img.src = images[index];
   container.appendChild(img);
-  /*
-    if (change & index !== prev_index) {
-        updateAnnotations(index);
-        prev_index = currentImageIndex;
-    }
-    if (modify) {
-        
-    }
-    */
+
   updateAnnotations(index);
-  // 更新菜单项样式
-  const menuItems = document.querySelectorAll('#image-menu li');
+  const menuItems = document.querySelectorAll("#image-menu li");
   menuItems.forEach((menuItem, menuItemIndex) => {
-    const link = menuItem.querySelector('a');
+    const link = menuItem.querySelector("a");
     if (menuItemIndex === index) {
-      // 如果是当前显示的图像，则设置菜单项为蓝色字体并添加下划线
-      link.style.color = 'blue';
-      link.style.textDecoration = 'underline';
+      link.style.color = "blue";
+      link.style.textDecoration = "underline";
     } else {
-      // 否则恢复默认样式
-      link.style.color = 'black';
-      link.style.textDecoration = 'underline';
+      link.style.color = "black";
+      link.style.textDecoration = "underline";
     }
   });
   document
-    .getElementById('image_display')
-    .addEventListener('click', imageClickHandler);
+    .getElementById("image_display")
+    .addEventListener("click", imageClickHandler);
   updateImageCounter(currentImageIndex);
   updatCompleteCounter();
+  updateLabelCounter(currentImageIndex);
+}
+
+function updateLabelCounter(index) {
+  document.getElementById("label-counter").textContent =
+    "標註框數量 " + labels[index].length;
 }
 
 function updateAnnotations(index) {
@@ -688,8 +690,8 @@ function updateAnnotations(index) {
   }
 
   // 移除上一個圖片的標註
-  const imageContainer = document.getElementById('image-container');
-  const divs = imageContainer.getElementsByClassName('overlay-div');
+  const imageContainer = document.getElementById("image-container");
+  const divs = imageContainer.getElementsByClassName("overlay-div");
   while (divs.length > 0) {
     divs[0].parentNode.removeChild(divs[0]);
   }
@@ -697,27 +699,28 @@ function updateAnnotations(index) {
   // 顯示當前圖片的標註
   currentImageAnnotations.forEach((annotation) => {
     const { id, x, y, w, h, anno_id } = annotation;
-    const rect = document.createElement('div');
-    rect.className = 'overlay-div';
-    rect.style.position = 'absolute';
+    const rect = document.createElement("div");
+    rect.className = "overlay-div";
+    rect.style.position = "absolute";
     rect.style.left = `${x}px`;
     rect.style.top = `${y}px`;
     rect.style.width = `${w}px`;
     rect.style.height = `${h}px`;
     rect.style.backgroundColor = classColors[id];
-    rect.style.opacity = '0.5';
+    rect.style.opacity = "0.5";
     rect.dataset.anno_id = anno_id;
     imageContainer.appendChild(rect);
 
-    rect.addEventListener('click', function () {
+    rect.addEventListener("click", function () {
       const removedAnnoId = this.dataset.anno_id;
       labels[currentImageIndex] = labels[currentImageIndex].filter(
-        (label) => parseInt(label.anno_id) !== parseInt(removedAnnoId)
+        (label) => parseInt(label.anno_id) !== parseInt(removedAnnoId),
       );
       annotations[currentImageIndex] = annotations[currentImageIndex].filter(
-        (anno) => parseInt(anno.anno_id) !== parseInt(removedAnnoId)
+        (anno) => parseInt(anno.anno_id) !== parseInt(removedAnnoId),
       );
       this.remove();
+      updateLabelCounter(currentImageIndex);
     });
   });
 }
@@ -737,20 +740,20 @@ function showNextImage() {
 }
 
 function updateImageMenu(imageNames) {
-  document.getElementById('image-menu').style.display = 'block';
-  const menu = document.getElementById('image-menu');
-  menu.innerHTML = ''; // 清空菜单内容
+  document.getElementById("image-menu").style.display = "block";
+  const menu = document.getElementById("image-menu");
+  menu.innerHTML = ""; // 清空菜单内容
   // 为每张图像创建菜单项
   if (imageNames.length !== 0) {
     imageNames.forEach((name, index) => {
-      const menuItem = document.createElement('li');
+      const menuItem = document.createElement("li");
       menuItem.id = `menu-item-${index}`;
 
       // 添加超链接元素
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.textContent = name; // 使用图像名称作为超链接文本内容
-      link.href = '#'; // 链接地址设为 #
-      link.addEventListener('click', (event) => {
+      link.href = "#"; // 链接地址设为 #
+      link.addEventListener("click", (event) => {
         event.preventDefault(); // 阻止默认点击事件
         if (images.length === 0) {
           showBlankImage();
@@ -761,15 +764,15 @@ function updateImageMenu(imageNames) {
       });
       menuItem.appendChild(link);
 
-      const downloadButtonContainer = document.createElement('div'); // 创建一个新的容器元素
-      downloadButtonContainer.style.display = 'inline-block'; // 设置容器为内联块级元素
+      const downloadButtonContainer = document.createElement("div"); // 创建一个新的容器元素
+      downloadButtonContainer.style.display = "inline-block"; // 设置容器为内联块级元素
 
       // download-button
-      const downloadButton = document.createElement('button');
-      downloadButton.textContent = '下載圖片';
-      downloadButton.className = 'download-image-button';
+      const downloadButton = document.createElement("button");
+      downloadButton.textContent = "下載圖片";
+      downloadButton.className = "download-image-button";
 
-      downloadButton.addEventListener('click', async function () {
+      downloadButton.addEventListener("click", async function () {
         downloadImage(index);
       });
 
@@ -777,24 +780,24 @@ function updateImageMenu(imageNames) {
       menuItem.appendChild(downloadButtonContainer); // 将容器放入菜单项内
 
       // 添加勾选框
-      const checkbox = document.createElement('span');
-      checkbox.className = 'checkbox';
+      const checkbox = document.createElement("span");
+      checkbox.className = "checkbox";
       menuItem.appendChild(checkbox);
       // 检查图像是否已完成，如果是，则添加 completed 类
       if (menuItemsCompleted.includes(index)) {
-        menuItem.classList.add('completed');
+        menuItem.classList.add("completed");
       }
       menu.appendChild(menuItem);
     });
 
     // 标记当前图像的菜单项
     const currentMenuItem = document.getElementById(
-      `menu-item-${currentImageIndex}`
+      `menu-item-${currentImageIndex}`,
     );
     if (currentMenuItem) {
       // 将当前图像的菜单项设置为蓝色字体并添加下划线
-      currentMenuItem.querySelector('a').style.color = 'blue';
-      currentMenuItem.querySelector('a').style.textDecoration = 'underline';
+      currentMenuItem.querySelector("a").style.color = "blue";
+      currentMenuItem.querySelector("a").style.textDecoration = "underline";
     }
   }
 }
@@ -804,7 +807,7 @@ function markImageAsCompleted(index) {
   updatCompleteCounter();
   const menuItem = document.getElementById(`menu-item-${index}`);
   if (menuItem) {
-    menuItem.classList.add('completed'); // 添加已完成样式
+    menuItem.classList.add("completed"); // 添加已完成样式
   }
 }
 
@@ -813,7 +816,7 @@ function deleteImage(index) {
   if (!menuItem) return;
 
   // 检查该图像是否已完成标记
-  if (menuItem.classList.contains('completed')) {
+  if (menuItem.classList.contains("completed")) {
     const completedIndex = menuItemsCompleted.indexOf(index);
     if (completedIndex !== -1) {
       menuItemsCompleted.splice(completedIndex, 1);
@@ -825,7 +828,7 @@ function deleteImage(index) {
     }
     // 直接删除图像和菜单项
     completedImageName = completedImageName.filter(
-      (name) => name !== imagesName[index]
+      (name) => name !== imagesName[index],
     );
     images.splice(index, 1);
     imagesName.splice(index, 1);
@@ -848,7 +851,7 @@ function deleteImage(index) {
     }
     showImage(currentImageIndex);
   } else {
-    const confirmDelete = confirm('該圖像尚未完成標註 確定要進行刪除嗎？');
+    const confirmDelete = confirm("該圖像尚未完成標註 確定要進行刪除嗎？");
     for (let i = 0; i < menuItemsCompleted.length; i++) {
       if (menuItemsCompleted[i] > index) {
         menuItemsCompleted[i] -= 1;
@@ -880,16 +883,16 @@ function deleteImage(index) {
 }
 
 function showBlankImage() {
-  const container = document.getElementById('image-container');
-  container.innerHTML = '';
+  const container = document.getElementById("image-container");
+  container.innerHTML = "";
 }
 
 function imageClickHandler(event) {
-  const labelSizeInput = document.getElementById('label-size');
+  const labelSizeInput = document.getElementById("label-size");
   const divSize = parseInt(labelSizeInput.value);
 
   change = true;
-  const ratio = split_size / 720;
+  const ratio = split_size / container_size;
   const rect = this.getBoundingClientRect();
   const clickX = event.clientX - rect.left;
   const clickY = event.clientY - rect.top;
@@ -903,24 +906,24 @@ function imageClickHandler(event) {
     clickY,
     divSize,
     ratio,
-    paddings[currentImageIndex]
+    paddings[currentImageIndex],
   );
   const divLeft = xcenter - width / 2;
   const divTop = ycenter - height / 2;
   const bboxWidth = width;
   const bboxHeight = height;
 
-  const div = document.createElement('div');
-  div.className = 'overlay-div';
-  div.style.position = 'absolute';
+  const div = document.createElement("div");
+  div.className = "overlay-div";
+  div.style.position = "absolute";
   div.style.left = `${divLeft}px`;
   div.style.top = `${divTop}px`;
   div.style.width = `${bboxWidth}px`;
   div.style.height = `${bboxHeight}px`;
   div.style.backgroundColor = classColors[ptype - 1];
-  div.style.opacity = '0.5';
+  div.style.opacity = "0.5";
   div.dataset.anno_id = anno_ids[currentImageIndex];
-  document.getElementById('image-container').appendChild(div);
+  document.getElementById("image-container").appendChild(div);
   annotations[currentImageIndex].push({
     id: ptype - 1,
     x: divLeft,
@@ -938,46 +941,48 @@ function imageClickHandler(event) {
     anno_id: anno_ids[currentImageIndex],
   });
   anno_ids[currentImageIndex] += 1;
-
-  div.addEventListener('click', function () {
+  updateLabelCounter(currentImageIndex);
+  div.addEventListener("click", function () {
     const removedAnnoId = this.dataset.anno_id;
     labels[currentImageIndex] = labels[currentImageIndex].filter(
-      (label) => parseInt(label.anno_id) !== parseInt(removedAnnoId)
+      (label) => parseInt(label.anno_id) !== parseInt(removedAnnoId),
     );
     annotations[currentImageIndex] = annotations[currentImageIndex].filter(
-      (anno) => parseInt(anno.anno_id) !== parseInt(removedAnnoId)
+      (anno) => parseInt(anno.anno_id) !== parseInt(removedAnnoId),
     );
     this.remove();
+    updateLabelCounter(currentImageIndex);
   });
 }
 
 function updateImageCounter(index) {
-  document.getElementById('image-counter').textContent =
-    '圖片數量 ' + (index + 1) + ' / ' + images.length;
+  document.getElementById("image-counter").textContent =
+    "圖片數量 " + (index + 1) + " / " + images.length;
 }
 
 function updatCompleteCounter() {
-  document.getElementById('complete-counter').textContent =
-    '完成標註數量 ' + completedImageName.length + ' / ' + images.length;
+  document.getElementById("complete-counter").textContent =
+    "完成標註數量 " + completedImageName.length + " / " + images.length;
 }
 
 // reset all labels
 function labelreset() {
   completedImageName = completedImageName.filter(
-    (name) => name !== imagesName[currentImageIndex]
+    (name) => name !== imagesName[currentImageIndex],
   );
   labels[currentImageIndex] = [];
   const menuItem = document.getElementById(`menu-item-${currentImageIndex}`);
   if (menuItem) {
-    menuItem.classList.remove('completed');
+    menuItem.classList.remove("completed");
   }
   annotations[currentImageIndex] = [];
   anno_ids[currentImageIndex] = 0;
-  const imageContainer = document.getElementById('image-container');
-  const divs = imageContainer.getElementsByClassName('overlay-div');
+  const imageContainer = document.getElementById("image-container");
+  const divs = imageContainer.getElementsByClassName("overlay-div");
   while (divs.length > 0) {
     divs[0].parentNode.removeChild(divs[0]);
   }
+  updateLabelCounter(currentImageIndex);
 }
 
 function bboxAdjust(x, y, bbox_size, ratio, paddings_list) {
@@ -1015,7 +1020,7 @@ function bboxAdjust(x, y, bbox_size, ratio, paddings_list) {
 }
 
 async function complete_label_image() {
-  const downloadStatus = document.getElementById('download-status');
+  const downloadStatus = document.getElementById("download-status");
   if (images[currentImageIndex]) {
     const imageData = images[currentImageIndex];
     const imageName = imagesName[currentImageIndex];
@@ -1023,23 +1028,23 @@ async function complete_label_image() {
 
     try {
       downloadStatus.textContent = `正在儲存 ${imageName} ...`;
-      await fetch('/save_image', {
-        method: 'POST',
+      await fetch("/save_image", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           image_data: imageData,
           image_name: imageName,
           format_type: format_type,
           class_set: classSet,
-          username: localStorage.getItem('username'),
+          username: localStorage.getItem("username"),
         }),
       });
-      await fetch('/save_annotations', {
-        method: 'POST',
+      await fetch("/save_annotations", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           image_name: imageName,
@@ -1047,104 +1052,141 @@ async function complete_label_image() {
           yolo_labels: label,
           img_size: split_size,
           class_set: classSet,
-          username: localStorage.getItem('username'),
+          username: localStorage.getItem("username"),
         }),
       });
-      downloadStatus.textContent = '標註成功!';
+      downloadStatus.textContent = "標註成功!";
       setTimeout(() => {
-        downloadStatus.textContent = ''; // 清除下载状态文本
+        downloadStatus.textContent = "";
       }, 10000);
     } catch (error) {
-      console.error('error: ', error);
-      downloadStatus.textContent = '';
+      console.error("error: ", error);
+      downloadStatus.textContent = "";
     }
   } else {
-    downloadStatus.textContent = '沒有圖片可以標註.';
+    downloadStatus.textContent = "沒有圖片可以標註.";
   }
 }
 
 function add_parent_child_images(parentImage, childImages) {
   const data = {
-    username: localStorage.getItem('username'),
+    username: localStorage.getItem("username"),
     parent_image: parentImage,
     child_images: childImages,
   };
 
-  fetch('/add_img_db', {
-    method: 'POST',
+  fetch("/add_img_db", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
   })
     .then((response) => {
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
       return response.json();
     })
     .catch((error) => {
-      console.error('There was a problem with your fetch operation:', error);
+      console.error("There was a problem with your fetch operation:", error);
     });
 }
 
 function download_labeled_images() {
-  const downloadStatus = document.getElementById('download-status');
+  const downloadStatus = document.getElementById("download-status");
   if (completedImageName.length > 0) {
     const queryString = `?class_set=${encodeURIComponent(
-      classSet
+      classSet,
     )}&filenames=${encodeURIComponent(
-      JSON.stringify(completedImageName)
+      JSON.stringify(completedImageName),
     )}&format_type=${encodeURIComponent(format_type)}`;
     fetch(`/download_annotations${queryString}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     })
       .then((response) => {
         // 根据响应状态码检查下载状态
         if (response.ok) {
           // 创建一个 <a> 元素来触发下载
-          const link = document.createElement('a');
+          const link = document.createElement("a");
           link.href = response.url;
-          link.download = 'annotations.zip';
+          link.download = "annotations.zip";
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
         } else {
-          downloadStatus.textContent = '下载失败，请重试.';
+          downloadStatus.textContent = "下载失败，请重试.";
         }
       })
       .catch((error) => {
-        console.error('发送请求时出错:', error);
-        downloadStatus.textContent = '下载失败，请重试.';
+        console.error("发送请求时出错:", error);
+        downloadStatus.textContent = "下载失败，请重试.";
       });
   } else {
-    downloadStatus.textContent = 'No image completed';
+    downloadStatus.textContent = "No image completed";
+  }
+}
+
+function download_labeled_WMTSimages() {
+  const downloadStatus = document.getElementById("download-status");
+  if (completedImageName.length > 0) {
+    const queryString = `?class_set=${encodeURIComponent(
+      classSet,
+    )}&filenames=${encodeURIComponent(
+      JSON.stringify(completedImageName),
+    )}&format_type=${encodeURIComponent(format_type)}`;
+    fetch(`/download_WMTSannotations${queryString}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        // 根据响应状态码检查下载状态
+        if (response.ok) {
+          // 创建一个 <a> 元素来触发下载
+          const link = document.createElement("a");
+          link.href = response.url;
+          link.download = "annotations.zip";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          downloadStatus.textContent = "下载失败，请重试.";
+        }
+      })
+      .catch((error) => {
+        console.error("发送请求时出错:", error);
+        downloadStatus.textContent = "下载失败，请重试.";
+      });
+  } else {
+    downloadStatus.textContent = "No image completed";
   }
 }
 
 function imageMouseOverHandler(event) {
-  const labelSizeInput = document.getElementById('label-size');
+  const labelSizeInput = document.getElementById("label-size");
   const divSize = parseInt(labelSizeInput.value);
 
   const rect = this.getBoundingClientRect();
   const mouseX = event.clientX - rect.left - divSize / 2;
   const mouseY = event.clientY - rect.top - divSize / 2;
 
-  const overlayDiv = document.createElement('div');
-  overlayDiv.className = 'overlay-div-preview';
-  overlayDiv.style.position = 'absolute';
+  const overlayDiv = document.createElement("div");
+  overlayDiv.className = "overlay-div-preview";
+  overlayDiv.style.position = "absolute";
   overlayDiv.style.left = `${mouseX}px`;
   overlayDiv.style.top = `${mouseY}px`;
   overlayDiv.style.width = `${divSize}px`;
   overlayDiv.style.height = `${divSize}px`;
   overlayDiv.style.backgroundColor = classColors[ptype - 1];
-  overlayDiv.style.opacity = '0.5';
+  overlayDiv.style.opacity = "0.5";
 
-  overlayDiv.style.pointerEvents = 'none';
-  document.getElementById('image-container').appendChild(overlayDiv);
+  overlayDiv.style.pointerEvents = "none";
+  document.getElementById("image-container").appendChild(overlayDiv);
 
   function updateOverlayPosition(event) {
     const newX = event.clientX - rect.left - divSize / 2;
@@ -1155,69 +1197,33 @@ function imageMouseOverHandler(event) {
 
   function removeOverlay() {
     overlayDiv.remove();
-    document.removeEventListener('mousemove', updateOverlayPosition);
-    document.removeEventListener('mouseout', removeOverlay);
+    document.removeEventListener("mousemove", updateOverlayPosition);
+    document.removeEventListener("mouseout", removeOverlay);
   }
 
-  document.addEventListener('mousemove', updateOverlayPosition);
-  document.addEventListener('mouseout', removeOverlay);
+  document.addEventListener("mousemove", updateOverlayPosition);
+  document.addEventListener("mouseout", removeOverlay);
 }
 
 function imageMouseOutHandler() {
-  const overlayDiv = document.querySelector('.overlay-div-preview');
+  const overlayDiv = document.querySelector(".overlay-div-preview");
   if (overlayDiv) {
     overlayDiv.remove();
   }
 }
-
-/*
-window.addEventListener('beforeunload', function(event) {
-    // 取消事件的默认动作，以便显示确认框
-    event.preventDefault();
-    // 标准中未定义文本的返回值，但大多数浏览器会显示一个默认文本
-    event.returnValue = '';
-    
-    // 显示确认框
-    const confirmationMessage = '是否确定要重新加载页面？';
-    event.returnValue = confirmationMessage; // 兼容旧版浏览器
-    return confirmationMessage;
-});
-*/
-
-/* async function downloadWTMSImage() {
-  const lon = document.getElementById('label-lon-input').value;
-  const lat = document.getElementById('label-lat-input').value;
-
-  console.log(lon, lat);
-  try {
-    // 保存图片
-    await fetch('/download_wmts_image', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        lon: lon,
-        lat: lat,
-      }),
-    });
-  } catch (error) {
-    console.error('发送请求时出错:', error);
-  }
-} */
 
 async function downloadImage(index) {
   const menuItem = document.getElementById(`menu-item-${index}`);
   if (!menuItem) return;
   const imageData = images[index];
   const imageName = imagesName[index];
-  const downloadImageName = imageName.replace(/\s+/g, '_');
+  const downloadImageName = imageName.replace(/\s+/g, "_");
   try {
     // 保存图片
-    await fetch('/save_image_for_download', {
-      method: 'POST',
+    await fetch("/save_image_for_download", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         image_data: imageData,
@@ -1227,12 +1233,12 @@ async function downloadImage(index) {
 
     // 下载图片
     const queryString = `?filenames=${encodeURIComponent(
-      JSON.stringify(downloadImageName)
+      JSON.stringify(downloadImageName),
     )}`;
     const response = await fetch(`/download_image${queryString}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
@@ -1241,9 +1247,9 @@ async function downloadImage(index) {
       const url = window.URL.createObjectURL(blob);
 
       // 创建一个 <a> 元素来触发下载
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = downloadImageName + '.jpg';
+      link.download = downloadImageName + ".jpg";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1252,20 +1258,62 @@ async function downloadImage(index) {
       window.URL.revokeObjectURL(url);
     } else {
       // 处理下载失败情况
-      console.error('下载失败:', response.statusText);
+      console.error("下载失败:", response.statusText);
     }
   } catch (error) {
-    console.error('发送请求时出错:', error);
+    console.error("发送请求时出错:", error);
   }
 }
 
 async function openFolderDialog() {
   const options = {
     // 只允许选择文件夹
-    type: 'openDirectory',
+    type: "openDirectory",
   };
   // 使用浏览器提供的API打开文件对话框
   const folderHandle = await window.showDirectoryPicker(options);
   // 返回用户选择的文件夹路径
   return folderHandle;
+}
+
+function logout() {
+  removeLocalStorage();
+  resetUserDatas();
+  window.location.href = "./";
+}
+
+function removeLocalStorage() {
+  localStorage.removeItem("username");
+  localStorage.removeItem("isLogin");
+  localStorage.removeItem("login_set");
+  localStorage.removeItem("login_mode");
+}
+
+function resetUserDatas() {
+  classSet = 1;
+  mode = "annotate";
+  images = [];
+  imagesName = [];
+  currentImageIndex = 0;
+  menuItemsCompleted = [];
+  completedImageName = [];
+  parentImagesName = [];
+  labels = [];
+  annotations = [];
+  prev_index = -1;
+  detections = [];
+  paddings = [];
+  document.getElementById("image-counter").textContent = "圖片數量 0 / 0";
+  document.getElementById("complete-counter").textContent =
+    "完成標註數量 0 / 0";
+  updateImageMenu(imagesName);
+  const container = document.getElementById("image-container");
+  const imageDisplay = document.getElementById("image_display");
+  if (imageDisplay) {
+    container.removeChild(imageDisplay);
+  }
+  const divs = container.getElementsByClassName("overlay-div");
+  while (divs.length > 0) {
+    divs[0].parentNode.removeChild(divs[0]);
+  }
 }
