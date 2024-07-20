@@ -68,7 +68,7 @@ function splitImage(image, file, size, mode) {
         location: [h, w],
         paddings: padding,
       };
-      // childImages.push(child_img)
+      childImages.push(child_img);
     }
   }
   if (mode === "modify") {
