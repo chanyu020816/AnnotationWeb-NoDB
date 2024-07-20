@@ -26,7 +26,11 @@ TEMP_FOLDER = "Database" if DATABASE else "No-Database"
 app = Flask(__name__)
 app.secret_key = "app"
 app.config["SESSION_TYPE"] = "filesystem"
-
+if DATABASE:
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        "mysql+pymysql://admin01:symboldetection@localhost:8001/symboldetection"  # docker only database, app.py local
+    )
+    db = SQLAlchemy(app)
 Session(app)
 
 
@@ -63,7 +67,7 @@ def nav_1921():
     return render_template(os.path.join(TEMP_FOLDER, "nav_1921.html"))
 
 
-@app.route("/validate_password", methods=["POST"])
+@app.route(f"/validate_password", methods=["POST"])
 def validate_password():
     data = request.json
     username_input = data["username"]

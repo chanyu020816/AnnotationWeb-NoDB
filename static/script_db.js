@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 async function fetchFilesFromServer(x_tile, y_tile, zoom, year) {
-  const response = await fetch("/download_wmts_image", {
+  const response = await fetch("/website/download_wmts_image", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -388,7 +388,7 @@ async function readLabel(file) {
   const formData = new FormData();
   formData.append("file", file);
   try {
-    const response = await fetch("/upload_yolo_labels", {
+    const response = await fetch("/website/upload_yolo_labels", {
       method: "POST",
       body: formData,
     });
@@ -583,7 +583,7 @@ async function complete_label_image() {
 
     try {
       downloadStatus.textContent = `正在儲存 ${imageName} ...`;
-      await fetch("/save_image", {
+      await fetch("/website/save_image", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -596,7 +596,7 @@ async function complete_label_image() {
           username: localStorage.getItem("username"),
         }),
       });
-      await fetch("/save_annotations", {
+      await fetch("/website/save_annotations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -608,6 +608,18 @@ async function complete_label_image() {
           img_size: split_size,
           class_set: classSet,
           username: localStorage.getItem("username"),
+        }),
+      });
+      await fetch("/website/add_labels_db", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: localStorage.getItem("username"),
+          image_name: imageName,
+          yolo_labels: label,
+          class_set: classSet,
         }),
       });
       downloadStatus.textContent = "標註成功!";
@@ -630,7 +642,7 @@ function add_parent_child_images(parentImage, childImages) {
     child_images: childImages,
   };
 
-  fetch("/add_img_db", {
+  fetch("/website/add_img_db", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -656,7 +668,7 @@ function download_labeled_images() {
     )}&filenames=${encodeURIComponent(
       JSON.stringify(completedImageName),
     )}&format_type=${encodeURIComponent(format_type)}`;
-    fetch(`/download_annotations${queryString}`, {
+    fetch(`/website/download_annotations${queryString}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -693,7 +705,7 @@ function download_labeled_WMTSimages() {
     )}&filenames=${encodeURIComponent(
       JSON.stringify(completedImageName),
     )}&format_type=${encodeURIComponent(format_type)}`;
-    fetch(`/download_WMTSannotations${queryString}`, {
+    fetch(`/website/download_WMTSannotations${queryString}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -729,7 +741,7 @@ async function downloadImage(index) {
   const imageName = imagesName[index];
   const downloadImageName = imageName.replace(/\s+/g, "_");
   try {
-    await fetch("/save_image_for_download", {
+    await fetch("/website/save_image_for_download", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -744,7 +756,7 @@ async function downloadImage(index) {
     const queryString = `?filenames=${encodeURIComponent(
       JSON.stringify(downloadImageName),
     )}`;
-    const response = await fetch(`/download_image${queryString}`, {
+    const response = await fetch(`/website/download_image${queryString}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -786,7 +798,7 @@ async function openFolderDialog() {
 }
 
 function logout() {
-  fetch("/logout", {
+  fetch("/website/logout", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
