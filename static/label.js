@@ -83,7 +83,7 @@ function splitImage(image, file, size, mode) {
       location: [0, 0],
       paddings: [112, 112, 368, 368], // WMTS images are 256 * 256
     };
-    add_parent_child_images(parentImage, image);
+    add_parent_child_images(parentImage, [image]);
     return [[canvas.toDataURL()], [fileName]];
   }
   add_parent_child_images(parentImage, childImages);
