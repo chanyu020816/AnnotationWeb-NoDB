@@ -653,6 +653,7 @@ def upload_yolo_labels():
 
 
 def check_folder_exists():
+    create_folder("Server_images")
     create_img_label_folder("./Annotations")
     for class_set in range(1, 3):
         create_img_label_folder(
