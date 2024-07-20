@@ -623,31 +623,6 @@ async function complete_label_image() {
   }
 }
 
-function add_parent_child_images(parentImage, childImages) {
-  const data = {
-    username: localStorage.getItem("username"),
-    parent_image: parentImage,
-    child_images: childImages,
-  };
-
-  fetch("/add_img_db", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .catch((error) => {
-      console.error("There was a problem with your fetch operation:", error);
-    });
-}
-
 function download_labeled_images() {
   const downloadStatus = document.getElementById("download-status");
   if (completedImageName.length > 0) {
