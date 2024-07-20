@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <title>Annotation Tool - WMTS 1904 (Annotation)</title>
-    <link rel="stylesheet" href="website/static/style.css" />
-    <link rel="stylesheet" href="website/static/pagination.css" />
-    <script src="website/static/script_db.js"></script>
-    <script src="website/static/label.js"></script>
+    <link rel="stylesheet" href="static/style.css" />
+    <link rel="stylesheet" href="static/pagination.css" />
+    <script src="static/script_db.js"></script>
+    <script src="static/label.js"></script>
   </head>
   <body>
     <div class="content">
@@ -113,7 +113,7 @@
       <script>
         document.addEventListener("DOMContentLoaded", function () {
           const year = localStorage.getItem("year");
-          const url = `/nav_${year}`;
+          const url = `/website/nav_${year}`;
 
           fetch(url)
             .then((response) => response.text())

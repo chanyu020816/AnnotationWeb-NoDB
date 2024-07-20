@@ -32,7 +32,7 @@ function submitForm(event) {
         const year = login_set.split("_")[1];
         const layer = `Taiwan_${year}`;
         const login_mode = document.getElementById("login-mode").value;
-        const url = `/${page}_page`;
+        const url = `/website/${page}_page`;
         window.location.href = url;
 
         localStorage.setItem("username", username);
