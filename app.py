@@ -655,7 +655,7 @@ def upload_yolo_labels():
 def check_folder_exists():
 
     create_img_label_folder("./Annotations")
-    create_folder(os.path.join("./Annotation", "Server_images"))
+    create_folder(os.path.join("./Annotations", "Server_images"))
     for class_set in range(1, 3):
         create_img_label_folder(
             os.path.join("./Annotations", f"Server_AnnotationsSet{class_set}_WMTS")
