@@ -13,6 +13,12 @@ def create_folder(path):
     return
 
 
+def create_img_label_folder(path):
+    create_folder(path)
+    create_folder(os.path.join(path, "images"))
+    create_folder(os.path.join(path, "labels"))
+
+
 def parse_label_file(file):
     labels = []
     annos = []

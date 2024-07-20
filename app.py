@@ -242,8 +242,6 @@ def save_image_for_download():
     image_name = data["image_name"]
     image_name = re.sub(r"\s+", "_", image_name)
     image_folder_path = os.path.join("Annotations", f"Server_images")
-    if not os.path.exists(image_folder_path):
-        os.mkdir(image_folder_path)
 
     output_path = os.path.join(image_folder_path, f"{image_name}.jpg")
     image_data = image_data.split(",")[
@@ -270,11 +268,6 @@ def save_image():
     image_folder_path = os.path.join(
         "Annotations", f"Yolo_AnnotationsSet{set}", "images"
     )
-    if not os.path.exists(os.path.join("Annotations", f"Yolo_AnnotationsSet{set}")):
-        os.mkdir(os.path.join("Annotations", f"Yolo_AnnotationsSet{set}"))
-    if not os.path.exists(image_folder_path):
-        os.mkdir(image_folder_path)
-
     output_path = os.path.join(image_folder_path, f"{image_name}.jpg")
 
     image_data = image_data.split(",")[1]
@@ -288,10 +281,6 @@ def save_image():
     server_image_folder_path = os.path.join(
         "Annotations", f"Server_AnnotationsSet{set}", "images"
     )
-    if not os.path.exists(os.path.join("Annotations", f"Server_AnnotationsSet{set}")):
-        os.mkdir(os.path.join("Annotations", f"Server_AnnotationsSet{set}"))
-    if not os.path.exists(server_image_folder_path):
-        os.mkdir(server_image_folder_path)
     image.save(os.path.join(server_image_folder_path, f"{image_name}.jpg"))
 
     with open(os.path.join("Annotations", "log.csv"), "a") as f:
@@ -308,13 +297,10 @@ def save_annotations():
     yolo_labels = data["yolo_labels"]
     image_size = data["img_size"]
     set = data["class_set"]
-    print(image_name)
     if format_type == "yolo":
         label_folder_path = os.path.join(
             "Annotations", f"Yolo_AnnotationsSet{set}", "labels"
         )
-        if not os.path.exists(label_folder_path):
-            os.mkdir(label_folder_path)
         output_path = os.path.join(label_folder_path, f"{image_name}.txt")
         print(output_path)
         with open(output_path, "w") as file:
@@ -356,8 +342,6 @@ def save_annotations():
     label_folder_path = os.path.join(
         "Annotations", f"Server_AnnotationsSet{set}", "labels"
     )
-    if not os.path.exists(label_folder_path):
-        os.mkdir(label_folder_path)
     output_path = os.path.join(label_folder_path, f"{image_name}.txt")
     with open(output_path, "w") as file:
 
@@ -531,10 +515,6 @@ def download_WMTSannotations():
     WMTS_label_folder = os.path.join(
         "./Annotations", f"Server_AnnotationsSet{class_set}_WMTS", "labels"
     )
-    create_folder(WMTS_folder)
-    create_folder(WMTS_image_folder)
-    create_folder(WMTS_label_folder)
-
     zip_filename = "annotations.zip"
     with zipfile.ZipFile(zip_filename, "w") as zipf:
         for file in completed_file_names:
@@ -672,8 +652,25 @@ def upload_yolo_labels():
     return jsonify(labels)
 
 
+def check_folder_exists():
+    create_img_label_folder("/Annotations")
+    for class_set in range(1, 3):
+        create_img_label_folder(
+            os.path.join("./Annotations", f"Server_AnnotationsSet{class_set}_WMTS")
+        )
+        create_img_label_folder(
+            os.path.join("Annotations", f"Server_AnnotationsSet{class_set}")
+        )
+        create_img_label_folder(
+            os.path.join("Annotations", f"Server_AnnotationsSet{class_set}")
+        )
+
+        create_img_label_folder(
+            os.path.join("Annotations", f"Yolo_AnnotationsSet{class_set}")
+        )
+
+
 if __name__ == "__main__":
-    if not os.path.exists("./Annotations"):
-        os.mkdir("./Annotations")
+    check_folder_exists()
 
     app.run(host="0.0.0.0", port=8000, debug=True)
