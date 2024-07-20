@@ -92,6 +92,9 @@ window.onload = function () {
     } else {
       document.getElementById("upload-label-button").style.display = "none";
     }
+    if (localStorage.getItem("page") !== "WMTSlabel") {
+      document.getElementById("image-menu").style.top = "270px";
+    }
   }
 };
 
@@ -179,7 +182,6 @@ document.addEventListener("DOMContentLoaded", function () {
     .addEventListener("click", async function () {
       const page = localStorage.getItem("page");
       if (page == "WMTSlabel") {
-        console.log("Test");
         download_labeled_WMTSimages();
       } else {
         download_labeled_images();
@@ -250,7 +252,6 @@ async function downloadWTMSImage_by_lonlat() {
   document.getElementById("label-ytile-input").value = y_tile;
 
   const files = await fetchFilesFromServer(x_tile, y_tile, zoom, year);
-  console.log(files);
   if (files.length === 0) {
     document.getElementById("download-status").textContent =
       "該位置周圍沒有圖片";
@@ -302,7 +303,6 @@ async function downloadWTMSImage_by_tile() {
 }
 
 function lonlatToTile(lon, lat, zoomLevel) {
-  console.log(lon, lat, zoomLevel);
   var latRadian = lat * (Math.PI / 180);
   var n = Math.pow(2, zoomLevel);
   var xTile = Math.floor(((lon + 180) / 360) * n);
@@ -506,7 +506,6 @@ function splitImage(image, file, size, mode) {
       console.error("image size wrong");
     }
   } else if (localStorage.getItem("page") === "WMTSlabel") {
-    console.log("WMTS");
     return [[canvas.toDataURL()], [fileName]];
   }
   return [images, imageNames];
@@ -1172,7 +1171,6 @@ function download_labeled_WMTSimages() {
 }
 
 function imageMouseOverHandler(event) {
-  console.log("Test");
   const labelSizeInput = document.getElementById("label-size");
   const divSize = parseInt(labelSizeInput.value);
 
@@ -1282,9 +1280,26 @@ async function openFolderDialog() {
 }
 
 function logout() {
-  removeLocalStorage();
-  resetUserDatas();
-  window.location.href = "./";
+  fetch("/logout", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (response.ok) {
+        // 清除 LocalStorage
+        removeLocalStorage();
+        resetUserDatas();
+        // 重新導向到登入頁面
+        window.location.href = "./";
+      } else {
+        console.error("Failed to log out");
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
 }
 
 function removeLocalStorage() {

@@ -101,7 +101,7 @@ body {
   width: 163px;
   height: 52px;
   top: 185px;
-  left: 1510px;
+  left: 1330px;
 }
 
 #complete-button {
@@ -165,10 +165,6 @@ body {
 #complete-counter {
   top: 185px;
   left: 1070px;
-}
-
-nav {
-  display: block;
 }
 
 * {
@@ -322,11 +318,6 @@ label[for="label-size"] {
   border-radius: 5px;
   cursor: pointer;
   font-size: 20px;
-}
-
-.content,
-nav {
-  display: none;
 }
 
 .background {

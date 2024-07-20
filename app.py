@@ -1,73 +1,96 @@
 import base64
-import csv
 import io
-import json
 import os
 import re
-import shutil
 import zipfile
 from datetime import datetime
 
-import numpy as np
-import yaml
-from flask import Flask, jsonify, render_template, request, send_file
+from flask import Flask, jsonify, redirect, render_template, request, send_file, session
 from flask_cors import CORS
 from pascal_voc_writer import Writer
 from PIL import Image as pilImage
 
-# from utils.image_padding import ImagePadding
+from config import *
+from flask_session import Session
+from utils.database import *
+from utils.website_utils import *
 from utils.WMTS_crawler import (
     download_WMTS_images,
     get_surrounding_tile_range,
     lonlat_to_tile,
 )
-from utils.WMTS_utils import labels_to_lonlat, modify_labels, remove_padding
 
-DISPLAY_SIZE = 720
+DATABASE = False
+TEMP_FOLDER = "Database" if DATABASE else "No-Database"
 
 app = Flask(__name__)
+app.secret_key = "app"
+app.config["SESSION_TYPE"] = "filesystem"
 
-class1 = ["田地", "草地", "荒地", "墓地", "樹林", "竹林", "旱地", "茶畑"]
-class2 = [
-    "果園",
-    "茶畑",
-    "桑畑",
-    "沼田",
-    "水田",
-    "乾田",
-    "荒地",
-    "樹林椶櫚科",
-    "竹林",
-    "樹林鍼葉",
-    "樹林濶葉",
-    "草地",
-]
-classes = [class1, class2]
+Session(app)
 
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template(os.path.join(TEMP_FOLDER, "index.html"))
 
 
 @app.route("/label_page")
 def label_page():
-    return render_template("label_page.html")
+    return (
+        render_template(os.path.join(TEMP_FOLDER, "label_page.html"))
+        if "logged_in" in session
+        else redirect("/")
+    )
 
 
 @app.route("/WMTSlabel_page")
 def WMTSlabel_page():
-    return render_template("WMTSlabel_page.html")
+    return (
+        render_template(os.path.join(TEMP_FOLDER, "WMTSlabel_page.html"))
+        if "logged_in" in session
+        else redirect("/")
+    )
 
 
 @app.route("/nav_1904")
 def nav_1904():
-    return render_template("nav_1904.html")
+    return render_template(os.path.join(TEMP_FOLDER, "nav_1904.html"))
 
 
 @app.route("/nav_1921")
 def nav_1921():
-    return render_template("nav_1921.html")
+    return render_template(os.path.join(TEMP_FOLDER, "nav_1921.html"))
+
+
+@app.route("/validate_password", methods=["POST"])
+def validate_password():
+    data = request.json
+    username_input = data["username"]
+    password_input = data["password"]
+
+    if not DATABASE:
+        session["logged_in"] = True
+        session["username"] = username_input
+        return jsonify({"success": True}), 200
+
+    user = User.query.filter_by(username=username_input).first()
+    if user and user.password == password_input:
+        session["logged_in"] = True
+        session["username"] = username_input
+        return jsonify({"success": True}), 200
+    else:
+        return (
+            jsonify({"success": False, "message": "Incorrect username or password"}),
+            401,
+        )
+
+
+@app.route("/logout")
+def logout():
+    session.pop("logged_in", None)
+    session.pop("username", None)
+    return redirect("/")
 
 
 @app.route("/save_image_for_download", methods=["POST"])
@@ -99,21 +122,16 @@ def save_image():
     image_data = data["image_data"]
     image_name = data["image_name"]
     image_name = re.sub(r"\s+", "_", image_name)
-    format_type = data["format_type"]
     set = data["class_set"]
     username = data["username"]
-    if format_type == "yolo":
-        image_folder_path = os.path.join(
-            "Annotations", f"Yolo_AnnotationsSet{set}", "images"
-        )
-        if not os.path.exists(os.path.join("Annotations", f"Yolo_AnnotationsSet{set}")):
-            os.mkdir(os.path.join("Annotations", f"Yolo_AnnotationsSet{set}"))
-        if not os.path.exists(image_folder_path):
-            os.mkdir(image_folder_path)
-    elif format_type == "pascal":
-        image_folder_path = os.path.join("Annotations", f"PASCAL_AnnotationsSet{set}")
-        if not os.path.exists(image_folder_path):
-            os.mkdir(image_folder_path)
+
+    image_folder_path = os.path.join(
+        "Annotations", f"Yolo_AnnotationsSet{set}", "images"
+    )
+    if not os.path.exists(os.path.join("Annotations", f"Yolo_AnnotationsSet{set}")):
+        os.mkdir(os.path.join("Annotations", f"Yolo_AnnotationsSet{set}"))
+    if not os.path.exists(image_folder_path):
+        os.mkdir(image_folder_path)
 
     output_path = os.path.join(image_folder_path, f"{image_name}.jpg")
 
@@ -190,7 +208,7 @@ def save_annotations():
             y1 = y - h / 2
             x2 = x + w / 2
             y2 = y + h / 2
-            writer.addObject(classes[set - 1][id], x1, y1, x2, y2)
+            writer.addObject(CLASSES[set - 1][id], x1, y1, x2, y2)
         writer.save(os.path.join(voc_folder_path, f"{image_name}.xml"))
 
     label_folder_path = os.path.join(
@@ -222,14 +240,99 @@ def save_annotations():
             y1 = y - h / 2
             x2 = x + w / 2
             y2 = y + h / 2
-            writer.addObject(classes[set - 1][id], x1, y1, x2, y2)
+            writer.addObject(CLASSES[set - 1][id], x1, y1, x2, y2)
         writer.save(os.path.join(label_folder_path, f"{image_name}.xml"))
 
     return jsonify({"message": "Success"})
 
 
-def get_values(label):
-    return [label["id"], label["x"], label["y"], label["w"], label["h"], "work"]
+@app.route("/add_img_db", methods=["POST"])
+def add_img_db():
+
+    if not DATABASE:
+        return jsonify({"success": True}), 200
+
+    data = request.json
+    username = data["username"]
+    parentimg = data["parent_image"]
+    child_imgs = data["child_images"]
+    img_name = parentimg["name"]
+    width = parentimg["width"]
+    height = parentimg["height"]
+    split_size = parentimg["split_size"]
+    img_name = re.sub(r"\s+", "_", img_name)
+    existing_parentimg = ParentImage.query.filter_by(
+        imagename=img_name, width=width, height=height, split_size=split_size
+    ).first()
+
+    if existing_parentimg:
+        return jsonify({"success": True}), 200
+    else:
+        user = User.query.filter_by(username=username).first()
+        user_id = user.id
+        # add parent image to db
+        parentimg = ParentImage(img_name, user_id, width, height, split_size)
+        db.session.add(parentimg)
+        db.session.commit()
+        parentimg_id = parentimg.id
+
+        # add child image to db
+        for child_img in child_imgs:
+            """
+            {'name': 'Screenshot 2024-04-10 at 4.09.19\u202fPM_h0_w0', 'location': [0, 0], 'paddings': [204, 236, 480, 480]}
+            """
+            h, w = child_img["location"]
+            x1, y1, x2, y2 = child_img["paddings"]
+            img = Image(
+                imagename=re.sub(r"\s+", "_", child_img["name"]),
+                parentimage_id=parentimg_id,
+                loaction_h=h,
+                location_w=w,
+                padding_xmin=x1,
+                padding_ymin=y1,
+                padding_xmax=x2,
+                padding_ymax=y2,
+            )
+            db.session.add(img)
+        db.session.commit()
+        return jsonify({"success": True}), 200
+
+
+@app.route("/add_labels_db", methods=["POST"])
+def add_labels():
+
+    if not DATABASE:
+        return jsonify({"success": True}), 200
+
+    data = request.json
+    username = data["username"]
+    imagename = data["image_name"]
+    imagename = re.sub(r"\s+", "_", imagename)
+    yolo_labels = data["yolo_labels"]
+    set = data["class_set"]
+    label_file_path = os.path.join(
+        "Annotations", f"Server_AnnotationsSet{set}", "labels", f"{imagename}.txt"
+    )
+    user = User.query.filter_by(username=username).first()
+    user_id = user.id
+    image = Image.query.filter_by(imagename=imagename).first()
+    image_id = image.id
+
+    label_history = LabelHistory(image_id, user_id, datetime.now(), label_file_path)
+    db.session.add(label_history)
+    db.session.commit()
+    label_history_id = label_history.id
+
+    # add labels
+    for label in yolo_labels:
+        id, x, y, w, h, _ = get_values(label)
+        label = Labels(label_history_id, set, id, x, y, w, h)
+        db.session.add(label)
+
+    image.is_labeled = True
+    db.session.commit()
+
+    return jsonify({"success": True}), 200
 
 
 @app.route("/download_annotations", methods=["GET"])
@@ -267,40 +370,8 @@ def download_annotations():
                     label_file_path,
                     arcname=os.path.join("labels", os.path.basename(label_file_path)),
                 )
-            else:
-                image_file_path = os.path.join(
-                    "./Annotations",
-                    f"Server_AnnotationsSet{class_set}",
-                    "images",
-                    f"{filename}.jpg",
-                )
-                label_file_path = os.path.join(
-                    "./Annotations",
-                    f"Server_AnnotationsSet{class_set}",
-                    "labels",
-                    f"{filename}.xml",
-                )
-
-                zipf.write(
-                    image_file_path,
-                    arcname=os.path.join(
-                        "annotations", os.path.basename(image_file_path)
-                    ),
-                )
-                zipf.write(
-                    label_file_path,
-                    arcname=os.path.join(
-                        "annotations", os.path.basename(label_file_path)
-                    ),
-                )
 
     return send_file(zip_filename, as_attachment=True)
-
-
-def create_folder(path):
-    if not os.path.exists(path):
-        os.mkdir(path)
-    return
 
 
 @app.route("/download_WMTSannotations", methods=["GET"])
@@ -329,74 +400,57 @@ def download_WMTSannotations():
             replace_chars = {"[": "", "]": "", '"': ""}
             filename = "".join(replace_chars.get(c, c) for c in filename)
 
-            if format_type == "yolo":
-                image_file_path = os.path.join(
-                    "./Annotations",
-                    f"Server_AnnotationsSet{class_set}",
-                    "images",
-                    f"{filename}.jpg",
-                )
-                label_file_path = os.path.join(
-                    "./Annotations",
-                    f"Server_AnnotationsSet{class_set}",
-                    "labels",
-                    f"{filename}.txt",
-                )
+            image_file_path = os.path.join(
+                "./Annotations",
+                f"Server_AnnotationsSet{class_set}",
+                "images",
+                f"{filename}.jpg",
+            )
+            label_file_path = os.path.join(
+                "./Annotations",
+                f"Server_AnnotationsSet{class_set}",
+                "labels",
+                f"{filename}.txt",
+            )
 
-                remove_paddings_result = WMTS_remove_paddings(
-                    image_file_path, label_file_path
-                )
+            remove_paddings_result = WMTS_remove_paddings(
+                image_file_path, label_file_path
+            )
 
-                image_file_path_rm_padding = os.path.join(
-                    WMTS_image_folder,
-                    f"{filename}.jpg",
-                )
-                img = remove_paddings_result["img"]
-                img.save(image_file_path_rm_padding)
+            image_file_path_rm_padding = os.path.join(
+                WMTS_image_folder,
+                f"{filename}.jpg",
+            )
+            img = remove_paddings_result["img"]
+            img.save(image_file_path_rm_padding)
 
-                label_file_path_rm_padding = os.path.join(
-                    WMTS_label_folder,
-                    f"{filename}.txt",
-                )
+            label_file_path_rm_padding = os.path.join(
+                WMTS_label_folder,
+                f"{filename}.txt",
+            )
 
-                labels = remove_paddings_result["label"]
-                with open(label_file_path_rm_padding, "w") as f:
-                    print(labels)
-                    for label in labels:
-                        for value in label:
-                            f.write(f"{value} ")
-                        f.write("\n")
+            labels = remove_paddings_result["label"]
+            with open(label_file_path_rm_padding, "w") as f:
+                print(labels)
+                for label in labels:
+                    for value in label:
+                        f.write(f"{value} ")
+                    f.write("\n")
 
-                zipf.write(
-                    image_file_path_rm_padding,
-                    arcname=os.path.join(
-                        "images", os.path.basename(image_file_path_rm_padding)
-                    ),
-                )
-                zipf.write(
-                    label_file_path_rm_padding,
-                    arcname=os.path.join(
-                        "labels", os.path.basename(label_file_path_rm_padding)
-                    ),
-                )
+            zipf.write(
+                image_file_path_rm_padding,
+                arcname=os.path.join(
+                    "images", os.path.basename(image_file_path_rm_padding)
+                ),
+            )
+            zipf.write(
+                label_file_path_rm_padding,
+                arcname=os.path.join(
+                    "labels", os.path.basename(label_file_path_rm_padding)
+                ),
+            )
 
     return send_file(zip_filename, as_attachment=True)
-
-
-def WMTS_remove_paddings(image_path, label_path):
-    img = pilImage.open(image_path)
-    img_arr = np.array(img)
-    img = remove_padding(img_arr, 256)
-
-    labels = []
-    with open(label_path, "r") as f:
-        for line in f:
-            parts = line.strip().split()
-            label = [int(parts[0])] + [float(x) for x in parts[1:]]
-            labels.append(label)
-    labels = modify_labels(labels, 480, 256)
-
-    return {"img": pilImage.fromarray(img), "label": labels}
 
 
 @app.route("/download_image", methods=["GET"])
@@ -421,7 +475,6 @@ def download_wmts_image():
     x_tile_start, x_tile_end, y_tile_start, y_tile_end = get_surrounding_tile_range(
         x_tile, y_tile
     )
-    print(x_tile_start, x_tile_end, y_tile_start, y_tile_end, zoom, year)
     download_WMTS_images(
         save_folder=save_folder,
         x_tile_start=x_tile_start,
@@ -465,8 +518,9 @@ def upload_yolo_labels():
     for file in files:
         if file and file.filename.endswith(".txt"):
             filename = file.filename
-            # existing_image = Image.query.filter_by(filename=filename).first()
-            existing_image = True
+            existing_image = (
+                Image.query.filter_by(filename=filename).first() if DATABASE else True
+            )
             if existing_image:
                 label_data = parse_label_file(file)
                 if label_data:
@@ -474,46 +528,6 @@ def upload_yolo_labels():
             else:
                 return "not found in database", 400
     return jsonify(labels)
-
-
-def parse_label_file(file):
-    labels = []
-    annos = []
-    anno_id = 0
-    for line in file:
-        parts = line.strip().split()
-        if len(parts) == 5:
-            class_id, x_center, y_center, width, height = map(float, parts)
-            labels.append(
-                {
-                    "id": class_id,
-                    "x": x_center,
-                    "y": y_center,
-                    "w": width,
-                    "h": height,
-                    "anno_id": anno_id,
-                }
-            )
-            aug_w = width * DISPLAY_SIZE
-            aug_h = height * DISPLAY_SIZE
-            annos.append(
-                {
-                    "id": class_id,
-                    "x": x_center * DISPLAY_SIZE - aug_w / 2,
-                    "y": y_center * DISPLAY_SIZE - aug_h / 2,
-                    "w": aug_w,
-                    "h": aug_h,
-                    "anno_id": anno_id,
-                }
-            )
-            anno_id += 1
-
-    filename = file.filename[:-4]
-    return (
-        {"filename": filename, "labels": labels, "annos": annos, "anno_id": anno_id}
-        if labels
-        else None
-    )
 
 
 if __name__ == "__main__":
