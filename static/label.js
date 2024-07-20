@@ -86,7 +86,7 @@ function splitImage(image, file, size, mode) {
     add_parent_child_images(parentImage, childImages);
     return [[canvas.toDataURL()], [fileName]];
   }
-
+  add_parent_child_images(parentImage, childImages);
   return [images, imageNames];
 }
 
