@@ -79,7 +79,7 @@ function splitImage(image, file, size, mode) {
     }
   } else if (localStorage.getItem("page") === "WMTSlabel") {
     image = {
-      name: file.name,
+      name: file.name.split(".")[0],
       location: [0, 0],
       paddings: [112, 112, 368, 368], // WMTS images are 256 * 256
     };
