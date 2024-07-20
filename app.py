@@ -390,7 +390,6 @@ def add_img_db():
     existing_parentimg = ParentImage.query.filter_by(
         imagename=img_name, width=width, height=height, split_size=split_size
     ).first()
-
     if existing_parentimg:
         return jsonify({"success": True}), 200
     else:
