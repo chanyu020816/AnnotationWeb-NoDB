@@ -80,6 +80,7 @@ function splitImage(image, file, size, mode) {
   } else if (localStorage.getItem("page") === "WMTSlabel") {
     return [[canvas.toDataURL()], [fileName]];
   }
+  add_parent_child_images(parentImage, childImages);
   return [images, imageNames];
 }
 
