@@ -111,6 +111,9 @@ def download_WMTS_images(
                 j += 1
                 continue
 
+            if image.mode == "RGBA":
+                image = image.convert("RGB")
+
             image.save(
                 os.path.join(save_folder, f"{year}-{zoom_level}-{xtile}-{ytile}.jpg")
             )
