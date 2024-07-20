@@ -302,7 +302,6 @@ def save_annotations():
             "Annotations", f"Yolo_AnnotationsSet{set}", "labels"
         )
         output_path = os.path.join(label_folder_path, f"{image_name}.txt")
-        print(output_path)
         with open(output_path, "w") as file:
             for label in yolo_labels:
                 id, x, y, w, h, _ = get_values(label)
@@ -552,7 +551,6 @@ def download_WMTSannotations():
 
             labels = remove_paddings_result["label"]
             with open(label_file_path_rm_padding, "w") as f:
-                print(labels)
                 for label in labels:
                     for value in label:
                         f.write(f"{value} ")
