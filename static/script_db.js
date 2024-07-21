@@ -635,6 +635,98 @@ async function complete_label_image() {
   }
 }
 
+function splitImage(image, file, size, mode) {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  const numH = Math.ceil(image.height / size);
+  const numW = Math.ceil(image.width / size);
+  const newH = numH * size;
+  const newW = numW * size;
+  const padH = Math.ceil((newH - image.height) / 2);
+  const padW = Math.ceil((newW - image.width) / 2);
+
+  const parentImage = {
+    name: file.name,
+    width: image.width,
+    height: image.height,
+    split_size: size,
+  };
+  const childImages = [];
+  canvas.height = newH;
+  canvas.width = newW;
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, newW, newH);
+  ctx.drawImage(
+    image,
+    0,
+    0,
+    image.width,
+    image.height,
+    padW,
+    padH,
+    image.width,
+    image.height,
+  );
+  const images = [];
+  const imageNames = [];
+
+  const fileName = file.name.split(".").slice(0, -1).join(".");
+  parentImagesName.push(fileName);
+
+  for (let h = 0; h < numH; h++) {
+    for (let w = 0; w < numW; w++) {
+      const cut_canvas = document.createElement("canvas");
+      const cut_ctx = cut_canvas.getContext("2d");
+      cut_canvas.width = size;
+      cut_canvas.height = size;
+      cut_ctx.drawImage(
+        canvas,
+        w * size,
+        h * size,
+        size,
+        size,
+        0,
+        0,
+        size,
+        size,
+      );
+      const imageDataURL = cut_canvas.toDataURL();
+      images.push(imageDataURL);
+      const imageName = `${fileName}_h${h}_w${w}`;
+      imageNames.push(imageName);
+      detections.push([]);
+      labels.push([]);
+      annotations.push([]);
+      anno_ids.push(0);
+      const padding = createPadding(h, w, numH, numW, size, padH, padW);
+      paddings.push([padding]);
+      child_img = {
+        name: imageName,
+        location: [h, w],
+        paddings: padding,
+      };
+      childImages.push(child_img);
+    }
+  }
+  if (mode === "modify") {
+    if ((image.height === 480) & (image.width === 480)) {
+      return [[canvas.toDataURL()], [fileName]];
+    } else {
+      console.error("image size wrong");
+    }
+  } else if (localStorage.getItem("page") === "WMTSlabel") {
+    image = {
+      name: file.name.split(".")[0],
+      location: [0, 0],
+      paddings: [112, 112, 368, 368], // WMTS images are 256 * 256
+    };
+    add_parent_child_images(parentImage, [image]);
+    return [[canvas.toDataURL()], [fileName]];
+  }
+  add_parent_child_images(parentImage, childImages);
+  return [images, imageNames];
+}
+
 function add_parent_child_images(parentImage, childImages) {
   const data = {
     username: localStorage.getItem("username"),
