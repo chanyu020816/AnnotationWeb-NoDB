@@ -9,7 +9,7 @@ import requests
 from PIL import Image
 from tqdm import tqdm
 
-YEAR_TYPE = ["JM20K_1904", "JM50K_1920"]
+YEAR_TYPE = ["JM20K_1904", "JM25K_1921"]
 URL_PREFIX = "https://gis.sinica.edu.tw/tileserver/file-exists.php?img="
 
 
