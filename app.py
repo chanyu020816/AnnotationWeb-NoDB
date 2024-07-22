@@ -5,7 +5,16 @@ import re
 import zipfile
 from datetime import datetime
 
-from flask import Flask, jsonify, redirect, render_template, request, send_file, session
+from flask import (
+    Flask,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    session,
+    url_for,
+)
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from pascal_voc_writer import Writer
@@ -22,8 +31,8 @@ from utils.WMTS_crawler import (
     lonlat_to_tile,
 )
 
-DATABASE = False
-TEMP_FOLDER = "Database" if DATABASE else "No-Database"
+DATABASE = True
+TEMP_FOLDER = "Database" if DATABASE else "No-DB"
 db = None
 
 app = Flask(__name__)
@@ -232,7 +241,7 @@ def validate_password():
 def logout():
     session.pop("logged_in", None)
     session.pop("username", None)
-    return redirect("/")
+    return redirect("#")
 
 
 @app.route("/save_image_for_download", methods=["POST"])
