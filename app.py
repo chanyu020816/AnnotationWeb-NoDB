@@ -181,11 +181,6 @@ if db:
             return f"<Labels {self.id}>"
 
 
-@app.route("#")
-def index():
-    return render_template(os.path.join(TEMP_FOLDER, "index.html"))
-
-
 @app.route("/")
 def index():
     return render_template(os.path.join(TEMP_FOLDER, "index.html"))
