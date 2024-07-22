@@ -241,7 +241,7 @@ def validate_password():
 def logout():
     session.pop("logged_in", None)
     session.pop("username", None)
-    return redirect("/")
+    return redirect(url_for("index"))
 
 
 @app.route("/save_image_for_download", methods=["POST"])
