@@ -181,6 +181,11 @@ if db:
             return f"<Labels {self.id}>"
 
 
+@app.route("#")
+def index():
+    return render_template(os.path.join(TEMP_FOLDER, "index.html"))
+
+
 @app.route("/")
 def index():
     return render_template(os.path.join(TEMP_FOLDER, "index.html"))
@@ -214,7 +219,7 @@ def nav_1921():
     return render_template(os.path.join(TEMP_FOLDER, "nav_1921.html"))
 
 
-@app.route(f"/validate_password", methods=["POST"])
+@app.route("/validate_password", methods=["POST"])
 def validate_password():
     data = request.json
     username_input = data["username"]
@@ -241,7 +246,7 @@ def validate_password():
 def logout():
     session.pop("logged_in", None)
     session.pop("username", None)
-    return redirect("")
+    return redirect("/")
 
 
 @app.route("/save_image_for_download", methods=["POST"])
