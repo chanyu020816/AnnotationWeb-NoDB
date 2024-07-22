@@ -181,17 +181,17 @@ if db:
             return f"<Labels {self.id}>"
 
 
-@app.route("/website/")
+@app.route("/")
 def index():
     return render_template(os.path.join(TEMP_FOLDER, "index.html"))
 
 
-@app.route("/website/label_page")
+@app.route("/label_page")
 def label_page():
     return (
         render_template(os.path.join(TEMP_FOLDER, "label_page.html"))
         if "logged_in" in session
-        else redirect("/website/")
+        else redirect("/")
     )
 
 
@@ -241,7 +241,7 @@ def validate_password():
 def logout():
     session.pop("logged_in", None)
     session.pop("username", None)
-    return redirect("/website/")
+    return redirect("/")
 
 
 @app.route("/save_image_for_download", methods=["POST"])
