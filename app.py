@@ -241,7 +241,7 @@ def validate_password():
 def logout():
     session.pop("logged_in", None)
     session.pop("username", None)
-    return redirect("https://mapanno.map.net.tw/website")
+    return redirect("/")
 
 
 @app.route("/save_image_for_download", methods=["POST"])
@@ -516,12 +516,8 @@ def download_WMTSannotations():
     WMTS_folder = os.path.join(
         "./Annotations", f"Server_AnnotationsSet{class_set}_WMTS"
     )
-    WMTS_image_folder = os.path.join(
-        "./Annotations", f"Server_AnnotationsSet{class_set}_WMTS", "images"
-    )
-    WMTS_label_folder = os.path.join(
-        "./Annotations", f"Server_AnnotationsSet{class_set}_WMTS", "labels"
-    )
+    WMTS_image_folder = os.path.join(WMTS_folder, "images")
+    WMTS_label_folder = os.path.join(WMTS_folder, "labels")
     zip_filename = "annotations.zip"
     with zipfile.ZipFile(zip_filename, "w") as zipf:
         for file in completed_file_names:
@@ -664,15 +660,11 @@ def check_folder_exists():
     create_folder(os.path.join("./Annotations", "Server_images"))
     for class_set in range(1, 3):
         create_img_label_folder(
+            os.path.join("./Annotations", f"Server_AnnotationsSet{class_set}")
+        )
+        create_img_label_folder(
             os.path.join("./Annotations", f"Server_AnnotationsSet{class_set}_WMTS")
         )
-        create_img_label_folder(
-            os.path.join("./Annotations", f"Server_AnnotationsSet{class_set}")
-        )
-        create_img_label_folder(
-            os.path.join("./Annotations", f"Server_AnnotationsSet{class_set}")
-        )
-
         create_img_label_folder(
             os.path.join("./Annotations", f"Yolo_AnnotationsSet{class_set}")
         )

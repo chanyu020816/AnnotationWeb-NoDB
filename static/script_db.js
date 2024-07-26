@@ -947,3 +947,15 @@ function resetUserDatas() {
     divs[0].parentNode.removeChild(divs[0]);
   }
 }
+
+window.addEventListener("beforeunload", function (event) {
+  // 取消事件的默认动作，以便显示确认框
+  event.preventDefault();
+  // 标准中未定义文本的返回值，但大多数浏览器会显示一个默认文本
+  event.returnValue = "";
+
+  // 显示确认框
+  const confirmationMessage = "是否确定要重新加载页面？";
+  event.returnValue = confirmationMessage; // 兼容旧版浏览器
+  return confirmationMessage;
+});

@@ -12,5 +12,4 @@ node_modules
 package*
 yarn.lock
 flask_sessions
-flask_session/9c36b384d614f7655509016c58ee87aa
-flask_session/2029240f6d1128be89ddc32729463129
+flask_session/*
