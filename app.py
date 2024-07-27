@@ -241,7 +241,7 @@ def validate_password():
 def logout():
     session.pop("logged_in", None)
     session.pop("username", None)
-    return
+    return jsonify({"success": True}), 200
 
 
 @app.route("/save_image_for_download", methods=["POST"])
