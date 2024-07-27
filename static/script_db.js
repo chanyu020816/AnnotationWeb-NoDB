@@ -902,7 +902,7 @@ function logout() {
         removeLocalStorage();
         resetUserDatas();
         // 重新導向到登入頁面
-        // window.location.href = "";
+        window.location.href = "/";
       } else {
         console.error("Failed to log out");
       }

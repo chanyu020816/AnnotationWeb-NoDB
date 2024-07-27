@@ -31,7 +31,7 @@ from utils.WMTS_crawler import (
     lonlat_to_tile,
 )
 
-DATABASE = False
+DATABASE = True
 TEMP_FOLDER = "Database" if DATABASE else "No-DB"
 db = None
 
@@ -241,7 +241,7 @@ def validate_password():
 def logout():
     session.pop("logged_in", None)
     session.pop("username", None)
-    return redirect("/")
+    return
 
 
 @app.route("/save_image_for_download", methods=["POST"])
