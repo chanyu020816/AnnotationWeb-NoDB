@@ -133,10 +133,19 @@ function displayPagination() {
   }
 }
 
+function reloadCSS(href) {
+  const links = document.getElementsByTagName("link");
+  for (let i = 0; i < links.length; i++) {
+    const link = links[i];
+    if (link.rel === "stylesheet" && link.href.includes(href)) {
+      link.href = link.href.split("?")[0] + "?reload=" + new Date().getTime();
+    }
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   setTimeout(() => {
-    document.getElementById("nav-placeholder").offsetHeight;
-    console.log("Testst234st ");
+    reloadCSS("path/to/your/styles.css");
   }, 4000);
   const wmts_tile_Button = document.getElementById("crawler-tile-button");
   if (wmts_tile_Button)
