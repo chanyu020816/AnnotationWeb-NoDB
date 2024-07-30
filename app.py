@@ -31,7 +31,7 @@ from utils.WMTS_crawler import (
     lonlat_to_tile,
 )
 
-DATABASE = False
+DATABASE = True
 TEMP_FOLDER = "Database" if DATABASE else "No-DB"
 db = None
 

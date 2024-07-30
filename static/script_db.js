@@ -130,15 +130,6 @@ function displayPagination() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  const year = localStorage.getItem("year");
-  const url = `/website/nav_${year}`;
-
-  fetch(url)
-    .then((response) => response.text())
-    .then((data) => {
-      document.getElementById("nav-placeholder").innerHTML = data;
-    })
-    .catch((error) => console.error("Error loading navigation:", error));
   displayPagination();
   const wmts_tile_Button = document.getElementById("crawler-tile-button");
   if (wmts_tile_Button)
