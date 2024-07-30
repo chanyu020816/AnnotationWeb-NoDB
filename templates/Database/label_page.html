@@ -71,14 +71,22 @@
             document.getElementById("nav-placeholder").innerHTML = data;
           })
           .catch((error) => console.error("Error loading navigation:", error));
-        if (document.getElementById("pagination1_1")) {
-          var link = document.createElement("link");
-          link.rel = "stylesheet";
-          link.type = "text/css";
-          link.href = "static/pagination.css";
-          document.head.appendChild(link);
-        }
       });
+      if (document.getElementById("pagination1_1")) {
+        console.log("Error");
+        var link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = "static/pagination.css";
+        document.head.appendChild(link);
+      } else {
+        console.log("Error2");
+        var link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.type = "text/css";
+        link.href = "static/pagination.css";
+        document.head.appendChild(link);
+      }
     </script>
   </body>
 </html>
