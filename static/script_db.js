@@ -84,7 +84,10 @@ window.onload = function () {
         });
       });
     });
-
+    setTimeout(() => {
+      document.getElementById("nav-placeholder").offsetHeight;
+      console.log("Testst2st ");
+    }, 4000);
     // 修改模式下，會多一個上傳標註檔案的按鈕
     if (mode === "modify" && localStorage.getItem("page") !== "WMTSlabel") {
       document.getElementById("upload-label-button").style.display = "block";
@@ -95,10 +98,6 @@ window.onload = function () {
       document.getElementById("image-menu").style.top = "360px";
     }
   }
-
-  setTimeout(() => {
-    document.getElementById("nav-placeholder").offsetHeight;
-  }, 4000);
 };
 
 function get_login_set_mode(login_setting) {
@@ -135,6 +134,10 @@ function displayPagination() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  setTimeout(() => {
+    document.getElementById("nav-placeholder").offsetHeight;
+    console.log("Testst234st ");
+  }, 4000);
   const wmts_tile_Button = document.getElementById("crawler-tile-button");
   if (wmts_tile_Button)
     wmts_tile_Button.addEventListener("click", downloadWTMSImage_by_tile);
