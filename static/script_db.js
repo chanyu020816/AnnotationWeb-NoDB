@@ -58,10 +58,6 @@ window.onload = function () {
     if (nav) nav.style.display = "block";
 
     [type, classSet, mode] = get_login_set_mode(login_setting);
-    setTimeout(() => {
-      displayPagination();
-      console.log("RUN");
-    }, 10000);
 
     const liItems = document.querySelectorAll("li");
     liItems.forEach((li) => {
@@ -96,7 +92,7 @@ window.onload = function () {
       document.getElementById("upload-label-button").style.display = "none";
     }
     if (localStorage.getItem("page") !== "WMTSlabel") {
-      document.getElementById("image-menu").style.top = "270px";
+      document.getElementById("image-menu").style.top = "360px";
     }
   }
 };
