@@ -95,11 +95,6 @@ window.onload = function () {
       document.getElementById("image-menu").style.top = "360px";
     }
   }
-  var link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.type = "text/css";
-  link.href = "static/pagination.css";
-  document.head.appendChild(link);
 };
 
 function get_login_set_mode(login_setting) {
@@ -136,6 +131,13 @@ function displayPagination() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  if (document.getElementById("pagination1_1")) {
+    var link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.type = "text/css";
+    link.href = "static/pagination.css";
+    document.head.appendChild(link);
+  }
   const wmts_tile_Button = document.getElementById("crawler-tile-button");
   if (wmts_tile_Button)
     wmts_tile_Button.addEventListener("click", downloadWTMSImage_by_tile);
