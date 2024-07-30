@@ -95,6 +95,10 @@ window.onload = function () {
       document.getElementById("image-menu").style.top = "360px";
     }
   }
+
+  setTimeout(() => {
+    document.getElementById("nav-placeholder").offsetHeight;
+  }, 4000);
 };
 
 function get_login_set_mode(login_setting) {
