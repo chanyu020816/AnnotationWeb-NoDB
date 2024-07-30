@@ -60,6 +60,7 @@ window.onload = function () {
     [type, classSet, mode] = get_login_set_mode(login_setting);
     setTimeout(() => {
       displayPagination();
+      console.log("RUN");
     }, 10000);
 
     const liItems = document.querySelectorAll("li");
@@ -115,6 +116,7 @@ function get_url_location() {
 }
 
 function displayPagination() {
+  console.log("qwerunxk");
   document.getElementById("pagination1_1").style.top = `${800}px`;
   document.getElementById("pagination1_2").style.top = `${950}px`;
 
