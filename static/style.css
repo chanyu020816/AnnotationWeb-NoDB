@@ -400,7 +400,7 @@ label[for="label-size"] {
   width: 77px;
   height: 30px;
   font-size: 18px;
-  margin-right: 65px;
+  margin-right: 17px;
 }
 
 #label-zoom-input {
@@ -420,6 +420,6 @@ label[for="label-size"] {
 #crawler-tile-button {
   width: 200px;
   height: 40px;
-  margin-left: 194px;
+  margin-left: 180px;
   margin-top: 0px;
 }
