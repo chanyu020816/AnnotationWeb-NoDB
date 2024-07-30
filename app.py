@@ -641,7 +641,7 @@ def upload_yolo_labels():
     labels = []
     for file in files:
         if file and file.filename.endswith(".txt"):
-            filename = file.filname.split(".")[0]
+            filename = file.filename.split(".")[0]
             existing_image = (
                 Image.query.filter_by(imageame=filename).first() if DATABASE else True
             )

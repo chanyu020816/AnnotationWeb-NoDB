@@ -464,7 +464,7 @@ function showImage(index, change = true, modify = false) {
 
 function updateLabelCounter(index) {
   document.getElementById("label-counter").textContent =
-    "標註框數量 " + labels[index].length;
+    "Box Count " + labels[index].length;
 }
 
 function updateAnnotations(index) {
@@ -554,7 +554,7 @@ function updateImageMenu(imageNames) {
 
       // download-button
       const downloadButton = document.createElement("button");
-      downloadButton.textContent = "下載圖片";
+      downloadButton.textContent = "Download image";
       downloadButton.className = "download-image-button";
 
       downloadButton.addEventListener("click", async function () {
