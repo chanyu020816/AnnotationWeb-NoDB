@@ -101,7 +101,7 @@ body {
   width: 163px;
   height: 52px;
   top: 185px;
-  left: 1330px;
+  left: 1100px;
 }
 
 #complete-button {
@@ -149,22 +149,23 @@ body {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 18px;
+  color: green;
 }
 
 #label-counter {
-  top: 140px;
-  left: 1070px;
+  top: 285px;
+  left: 705px;
 }
 
 #image-counter {
-  top: 185px;
-  left: 890px;
+  top: 225px;
+  left: 705px;
 }
 
 #complete-counter {
-  top: 185px;
-  left: 1070px;
+  top: 255px;
+  left: 705px;
 }
 
 * {
@@ -214,7 +215,7 @@ a[href^="#"]::after {
   height: 30px;
   font-size: 18px;
   position: absolute;
-  top: 0px;
+  top: -5px;
   left: 85px;
 }
 
@@ -227,7 +228,7 @@ label[for="label-size"] {
   padding: 0;
   position: absolute;
   left: 785px;
-  top: 400px;
+  top: 500px;
 }
 
 #image-menu li.completed > a::before {
@@ -381,7 +382,7 @@ label[for="label-size"] {
 #WMTS-input {
   position: absolute;
   left: 785px;
-  top: 280px;
+  top: 370px;
   width: 4000px;
 }
 
@@ -399,7 +400,7 @@ label[for="label-size"] {
   width: 77px;
   height: 30px;
   font-size: 18px;
-  margin-right: 17px;
+  margin-right: 65px;
 }
 
 #label-zoom-input {
@@ -419,6 +420,6 @@ label[for="label-size"] {
 #crawler-tile-button {
   width: 200px;
   height: 40px;
-  margin-left: 220px;
-  margin-top: 5px;
+  margin-left: 194px;
+  margin-top: 0px;
 }

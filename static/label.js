@@ -290,12 +290,12 @@ function deleteImage(index) {
 
 function updateImageCounter(index) {
   document.getElementById("image-counter").textContent =
-    "圖片數量 " + (index + 1) + " / " + images.length;
+    "Image Count " + (index + 1) + " / " + images.length;
 }
 
 function updatCompleteCounter() {
   document.getElementById("complete-counter").textContent =
-    "完成標註數量 " + completedImageName.length + " / " + images.length;
+    "Complete Count " + completedImageName.length + " / " + images.length;
 }
 
 // reset all labels

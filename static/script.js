@@ -94,7 +94,7 @@ window.onload = function () {
       document.getElementById("upload-label-button").style.display = "none";
     }
     if (localStorage.getItem("page") !== "WMTSlabel") {
-      document.getElementById("image-menu").style.top = "270px";
+      document.getElementById("image-menu").style.top = "360px";
     }
   }
 };
@@ -246,7 +246,8 @@ async function downloadWTMSImage_by_lonlat() {
   const files = await fetchFilesFromServer(x_tile, y_tile, zoom, year);
   if (files.length === 0) {
     document.getElementById("download-status").textContent =
-      "該位置周圍沒有圖片";
+      "No images are available for the surrounding area.";
+    document.getElementById("download-status").style = "color: red";
   } else {
     document.getElementById("download-status").textContent = "";
   }
@@ -451,7 +452,7 @@ function showImage(index, change = true, modify = false) {
 
 function updateLabelCounter(index) {
   document.getElementById("label-counter").textContent =
-    "標註框數量 " + labels[index].length;
+    "Box Count " + labels[index].length;
 }
 
 function updateAnnotations(index) {
@@ -541,7 +542,7 @@ function updateImageMenu(imageNames) {
 
       // download-button
       const downloadButton = document.createElement("button");
-      downloadButton.textContent = "下載圖片";
+      downloadButton.textContent = "Download image";
       downloadButton.className = "download-image-button";
 
       downloadButton.addEventListener("click", async function () {
@@ -921,9 +922,9 @@ function resetUserDatas() {
   prev_index = -1;
   detections = [];
   paddings = [];
-  document.getElementById("image-counter").textContent = "圖片數量 0 / 0";
+  document.getElementById("image-counter").textContent = "Image Count0 / 0";
   document.getElementById("complete-counter").textContent =
-    "完成標註數量 0 / 0";
+    "Complete Count 0 / 0";
   updateImageMenu(imagesName);
   const container = document.getElementById("image-container");
   const imageDisplay = document.getElementById("image_display");

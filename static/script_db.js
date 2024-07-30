@@ -113,23 +113,7 @@ function get_url_location() {
   return url[url.length - 1];
 }
 
-function displayPagination() {
-  document.getElementById("pagination1_1").style.top = `${800}px`;
-  document.getElementById("pagination1_2").style.top = `${950}px`;
-
-  if (document.getElementById("pagination1_3")) {
-    document.getElementById("pagination1_3").style.top = `${1100}px`;
-  }
-  if (document.getElementById("pagination1_4")) {
-    document.getElementById("pagination1_4").style.top = `${1250}px`;
-  }
-  if (document.getElementById("pagination1_5")) {
-    document.getElementById("pagination1_5").style.top = `${1400}px`;
-  }
-  if (document.getElementById("pagination1_6")) {
-    document.getElementById("pagination1_6").style.top = `${1550}px`;
-  }
-}
+function displayPagination() {}
 
 document.addEventListener("DOMContentLoaded", function () {
   const wmts_tile_Button = document.getElementById("crawler-tile-button");
