@@ -86,7 +86,6 @@ window.onload = function () {
     });
     setTimeout(() => {
       document.getElementById("nav-placeholder").offsetHeight;
-      console.log("Testst2st ");
     }, 4000);
     // 修改模式下，會多一個上傳標註檔案的按鈕
     if (mode === "modify" && localStorage.getItem("page") !== "WMTSlabel") {
@@ -115,7 +114,6 @@ function get_url_location() {
 }
 
 function displayPagination() {
-  console.log("qwerunxk");
   document.getElementById("pagination1_1").style.top = `${800}px`;
   document.getElementById("pagination1_2").style.top = `${950}px`;
 
@@ -145,7 +143,6 @@ function reloadCSS(href) {
 
 document.addEventListener("DOMContentLoaded", function () {
   setTimeout(() => {
-    console.log("Testst kdfigoiergiejr");
     reloadCSS("pagination.css");
   }, 4000);
   const wmts_tile_Button = document.getElementById("crawler-tile-button");
