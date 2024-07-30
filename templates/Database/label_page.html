@@ -61,17 +61,7 @@
       <ul id="image-menu"></ul>
     </div>
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const year = localStorage.getItem("year");
-        const url = `/website/nav_${year}`;
-
-        fetch(url)
-          .then((response) => response.text())
-          .then((data) => {
-            document.getElementById("nav-placeholder").innerHTML = data;
-          })
-          .catch((error) => console.error("Error loading navigation:", error));
-      });
+      document.addEventListener("DOMContentLoaded", function () {});
     </script>
   </body>
 </html>
