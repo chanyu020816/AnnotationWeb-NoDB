@@ -145,7 +145,8 @@ function reloadCSS(href) {
 
 document.addEventListener("DOMContentLoaded", function () {
   setTimeout(() => {
-    reloadCSS("path/to/your/styles.css");
+    console.log("Testst kdfigoiergiejr");
+    reloadCSS("static/pagination.css");
   }, 4000);
   const wmts_tile_Button = document.getElementById("crawler-tile-button");
   if (wmts_tile_Button)
