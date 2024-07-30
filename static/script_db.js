@@ -95,6 +95,11 @@ window.onload = function () {
       document.getElementById("image-menu").style.top = "360px";
     }
   }
+  var link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.type = "text/css";
+  link.href = "static/pagination.css";
+  document.head.appendChild(link);
 };
 
 function get_login_set_mode(login_setting) {
