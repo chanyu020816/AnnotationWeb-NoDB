@@ -58,6 +58,9 @@ window.onload = function () {
     if (nav) nav.style.display = "block";
 
     [type, classSet, mode] = get_login_set_mode(login_setting);
+    setTimeout(() => {
+      displayPagination();
+    }, 10000);
 
     const liItems = document.querySelectorAll("li");
     liItems.forEach((li) => {
@@ -130,7 +133,6 @@ function displayPagination() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  displayPagination();
   const wmts_tile_Button = document.getElementById("crawler-tile-button");
   if (wmts_tile_Button)
     wmts_tile_Button.addEventListener("click", downloadWTMSImage_by_tile);
