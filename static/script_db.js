@@ -332,7 +332,7 @@ function tileToLonLat(x_tile, y_tile, zoomLevel) {
 
 function handleFileSelect(event) {
   const downloadStatus = document.getElementById("download-status");
-  downloadStatus.textContent = "圖片上傳中";
+  downloadStatus.textContent = "Uploading images";
   let files = Array.from(event.target.files);
   if (!files || files.length === 0) return;
 
@@ -348,7 +348,7 @@ function handleFileSelect(event) {
   imageContainer.addEventListener("mouseover", imageMouseOverHandler);
   imageContainer.addEventListener("mouseout", imageMouseOutHandler);
   setTimeout(() => {
-    downloadStatus.textContent = "已完成圖片上傳";
+    downloadStatus.textContent = "Finished uploading images";
   }, 10000);
   setTimeout(() => {
     downloadStatus.textContent = "";
