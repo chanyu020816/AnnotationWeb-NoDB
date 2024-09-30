@@ -62,12 +62,14 @@ window.onload = function () {
     displayPagination();
 
     const liItems = document.querySelectorAll("li");
+    console.log(liItems);
     liItems.forEach((li) => {
       li.classList.add("modify");
       li.addEventListener("click", function () {
         ptype = parseInt(this.getAttribute("data-ptype"));
         liItems.forEach((item) => {
           /website/;
+          console.log("Test");
           if (item === this) {
             item.classList.add("ptype", "active");
             const aElement = item.querySelector("a");

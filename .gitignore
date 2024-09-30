@@ -4,7 +4,7 @@
 Annotations
 *.zip
 web
-venv
+.venv
 __pycache__
 .vscode
 .idea
