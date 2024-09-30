@@ -59,35 +59,38 @@ window.onload = function () {
 
     [type, classSet, mode] = get_login_set_mode(login_setting);
 
-    displayPagination();
-
-    const liItems = document.querySelectorAll("li");
-    console.log(liItems);
-    liItems.forEach((li) => {
-      li.classList.add("modify");
-      li.addEventListener("click", function () {
-        ptype = parseInt(this.getAttribute("data-ptype"));
-        liItems.forEach((item) => {
-          /website/;
-          console.log("Test");
-          if (item === this) {
-            item.classList.add("ptype", "active");
-            const aElement = item.querySelector("a");
-            if (aElement) {
-              // aElement.style.border = "3px solid red";
-              aElement.style.outline = "3px solid red";
-              aElement.style.outlineOffset = "-3px";
+    
+    setTimeout(function() {
+      displayPagination();
+      const liItems = document.querySelectorAll("li");
+      console.log(liItems);
+      liItems.forEach((li) => {
+        li.classList.add("modify");
+        li.addEventListener("click", function () {
+          ptype = parseInt(this.getAttribute("data-ptype"));
+          liItems.forEach((item) => {
+            /website/;
+            console.log("Test");
+            if (item === this) {
+              item.classList.add("ptype", "active");
+              const aElement = item.querySelector("a");
+              if (aElement) {
+                // aElement.style.border = "3px solid red";
+                aElement.style.outline = "3px solid red";
+                aElement.style.outlineOffset = "-3px";
+              }
+            } else {
+              item.classList.remove("ptype", "active");
+              const aElement = item.querySelector("a");
+              if (aElement) {
+                aElement.style.outline = "none";
+              }
             }
-          } else {
-            item.classList.remove("ptype", "active");
-            const aElement = item.querySelector("a");
-            if (aElement) {
-              aElement.style.outline = "none";
-            }
-          }
+          });
         });
       });
-    });
+    }, 2000);
+    
 
     // 修改模式下，會多一個上傳標註檔案的按鈕
     if (mode === "modify" && localStorage.getItem("page") !== "WMTSlabel") {
